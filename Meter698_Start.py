@@ -1,7 +1,6 @@
 import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_core, time, UI_Meter698_config, \
     configparser, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView
-
 from PyQt5.QtCore import pyqtSignal
 from Comm import makestr, get_list_sum
 from binascii import b2a_hex, a2b_hex
@@ -30,11 +29,14 @@ class MainWindow(QMainWindow):
         self.load_ini()
 
     def load_ini(self):
+        self.conf = configparser.ConfigParser()
         try:
             if os.path.exists('config.ini'):
-                pass
+                self.conf.read('config.ini', encoding= 'utf-8')
+                #todo
             else:
-                ini = open('config.ini', 'w+')
+                ini = open('config.ini', 'w')
+                #todo
 
         except:
             print_exc(file=open('bug.txt', 'a+'))
@@ -44,7 +46,6 @@ class MainWindow(QMainWindow):
             self.Connect.setDaemon(True)
             self.Connect.start()
             self.ui.pushButton.disconnect()
-            # self.connect = Connect()
             self.ui.pushButton.clicked.connect(self.Connect.switch)
             self.__switch.emit('1')
         except:

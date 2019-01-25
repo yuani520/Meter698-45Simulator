@@ -32,11 +32,22 @@ class MainWindow(QMainWindow):
         self.conf = configparser.ConfigParser()
         try:
             if os.path.exists('config.ini'):
-                self.conf.read('config.ini', encoding= 'utf-8')
-                #todo
+                self.conf.read('config.ini', encoding='GBK')
+                if self.conf.has_section('MeterData') is True:
+                    pass
+                # todo
             else:
                 ini = open('config.ini', 'w')
-                #todo
+                self.conf.add_section('MeterData')
+                data = open('source\\698data', 'r', encoding='utf-8')
+                while 1:
+                    text = data.readline()
+                    if text == '\n':
+                        break
+                    text = text.split(' ')
+                    self.conf.set('MeterData', text[0], text[1] + ' ' + text[2][:-1])
+                self.conf.write(ini)
+                # todo
 
         except:
             print_exc(file=open('bug.txt', 'a+'))

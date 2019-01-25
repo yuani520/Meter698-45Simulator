@@ -1,4 +1,4 @@
-import Comm, time, traceback
+import Comm, time, traceback, configparser
 
 
 def check(code):
@@ -406,7 +406,7 @@ def Data(DataDescribe, args):
         print(datatime)
         global Daily_freeze
         Daily_freeze = '1c' + Comm.list2str(args[0:7])
-        # print('Daily_freeze', Daily_freeze)
+        print('Daily_freeze', Daily_freeze)
         # print(args[7:])
         return args[7:]
     elif DataDescribe == '80':
@@ -496,6 +496,10 @@ def SequenceOf_ARecordRow(data):
 
 
 class ReturnMessage():
+    def __init__(self):
+        self.conf_new = configparser.ConfigParser()
+        self.conf_new.read('config.ini', encoding='GBK')
+
     def head(self):
         global SA_num
         self.ctrlzone = 'c3'
@@ -566,7 +570,7 @@ class ReturnMessage():
                 break
         return te
 
-    def compose_data(self, OI):
+    def compose_data_old(self, OI):
         compose = open('source\\698data', 'r', encoding='UTF-8', errors='ignore')
         while 1:
             text = compose.readline()
@@ -611,6 +615,43 @@ class ReturnMessage():
                 break
         compose.close()
 
+    def compose_data(self, OI):
+        text = [OI, self.get[0], self.get[1]]
+        if OI == '40000200':
+            text = time.strftime('%Y%m%d%H%M%S')
+            year = hex(int(text[0:4], 10))[2:].zfill(4)
+            mouth = hex(int(text[4:6], 10))[2:].zfill(2)
+            day = hex(int(text[6:8], 10))[2:].zfill(2)
+            hour = hex(int(text[8:10], 10))[2:].zfill(2)
+            min = hex(int(text[10:12], 10))[2:].zfill(2)
+            sec = hex(int(text[12:], 10))[2:].zfill(2)
+            times = '1c' + year + mouth + day + hour + min + sec
+            st = ['40000200', '(当前)日期时间', '']
+            self.save(st)
+            self.message = '40000200' + '01' + times
+            print('message', self.message)
+            global LargeOAD
+            LargeOAD = LargeOAD + self.message
+        elif text[0] == OI:
+            print('text', text)
+            self.save(text)
+            if text[0] == '00100200':
+                global start_time
+                stop_time = int(time.time() - start_time)
+                OI_A = str(int(text[2][6:14]) + stop_time + 5).zfill(8)
+                OI_B = str(int(text[2][16:24]) + stop_time + 4).zfill(8)
+                OI_C = str(int(text[2][26:34]) + stop_time + 3).zfill(8)
+                OI_D = str(int(text[2][36:44]) + stop_time + 2).zfill(8)
+                OI_E = str(int(text[2][46:54]) + stop_time + 1).zfill(8)
+                print('start time:', start_time, 'stop time:', stop_time)
+                print('正向有功递增数值', OI_A)
+                text[2] = '010506' + OI_A + '06' + OI_B + '06' + OI_C + '06' + OI_D + '06' + OI_E + '0'
+            self.message = text[0] + '01' + text[2]
+            print('message', self.message[0:-1])
+            LargeOAD = LargeOAD + self.message[0:-1]
+        else:
+            print('compose_data ERROR')
+
     def save(self, text):
         global OI
         OI = OI + text[0:2]
@@ -623,7 +664,7 @@ class ReturnMessage():
         global OI
         OI = []
 
-    def composefrozen(self, OI):
+    def composefrozen_old(self, OI):
         compose = open('source\\698data', 'r', encoding='UTF-8', errors='ignore')
         while 1:
             text = compose.readline()
@@ -659,6 +700,35 @@ class ReturnMessage():
                 SequenceOf_ARecordRow(text[2][0:-1])
                 break
         compose.close()
+        global LargeOAD
+        LargeOAD = LargeOAD + '00' + OI
+
+    def composefrozen(self, OI):
+        global frozenSign, auto_day_frozon_sign, auto_curve_sign
+        if frozenSign == 1 and OI[0] != '5':
+            newOI = '50020200_' + OI
+        if frozenSign == 2 and OI[0] != '5':
+            newOI = '50040200_' + OI
+        if auto_day_frozon_sign == 1 and newOI == '50040200_20210200':
+            print('自动日冻结时标')
+            global Daily_freeze
+            print('newOI', newOI)
+            self.save(['50040200_20210200', '日冻结', ''])
+            SequenceOf_ARecordRow(Daily_freeze)
+        if auto_curve_sign == 1 and newOI == '50020200_20210200':
+            print('自动曲线时标')
+            print('curve_newOI', newOI)
+            self.save(['50020200_20210200', '曲线冻结', ''])
+            SequenceOf_ARecordRow(Daily_freeze)
+        else:
+            self.get = self.conf_new.get('MeterData', newOI)
+            self.get = self.get.split(' ')
+            text = [newOI, self.get[0], self.get[1]]
+            self.save(text)
+            if newOI == '50020200_20210200' or newOI == '50040200_20210200':
+                pass
+            else:
+                SequenceOf_ARecordRow(text[2])
         global LargeOAD
         LargeOAD = LargeOAD + '00' + OI
 

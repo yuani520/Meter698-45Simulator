@@ -149,7 +149,6 @@ class Connect(threading.Thread):
                 self.serial.open()
                 MainWindow.ui.pushButton.setText('关闭')
                 print('启动')
-
                 global data, relen, LargeOAD, frozenSign, data_list
                 data = ''
                 while self.__runflag.isSet():
@@ -184,7 +183,6 @@ class Connect(threading.Thread):
                                         self.Meter.ReturnMessage().clear_OI()
                                     else:
                                         data = ''
-
                             else:
                                 try:
                                     while 1:
@@ -205,7 +203,6 @@ class Connect(threading.Thread):
                                         print('Abort')
                                         data = ''
                                         break
-
                                 except:
                                     pass
                                 continue
@@ -214,7 +211,6 @@ class Connect(threading.Thread):
                     except:
                         print_exc(file=open('bug.txt', 'a+'))
                         continue
-
             except:
                 MainWindow._signal_text.emit('ERROR')
                 print('无法打开串口')
@@ -230,6 +226,7 @@ class Config(QDialog):
         self.setFixedSize(self.width(), self.height())
         self.ui.pushButton.clicked.connect(self.get_auto_day_frozon)
         self.ui.pushButton.clicked.connect(self.get_auto_curve_frozon)
+        self.ui.pushButton.clicked.connect(self.get_auto_increase)
         self.ui.pushButton.clicked.connect(self.close)
         self.ui.pushButton.clicked.connect(self.list_save)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
@@ -240,10 +237,13 @@ class Config(QDialog):
         self.ui.pushButton_5.clicked.connect(self.output_log)
 
     def output_log(self):
-        txt = QFileDialog.getSaveFileName(self,'文件保存','C:/','All Files (*);;Text Files (*.txt)')
-        with open(txt[0],'w') as f:
-            text = MainWindow.ui.textEdit.toPlainText()
-            f.write(text)
+        txt = QFileDialog.getSaveFileName(self,'文件保存','C:/','Text Files (*.txt)')
+        try:
+            with open(txt[0],'w') as f:
+                text = MainWindow.ui.textEdit.toPlainText()
+                f.write(text)
+        except:
+            QMessageBox.about(self,'ERROR','文件保存失败')
 
     def clear(self):
         x = self.ui.tableWidget.rowCount() - 1
@@ -271,6 +271,16 @@ class Config(QDialog):
             print('get_auto_curve_frozon FLASE')
             Meter698_core.curve_frozon(0)
         return self.ui.checkBox_2.isChecked()
+
+    def get_auto_increase(self):
+        print('increase', self.ui.checkBox_3.isChecked())
+        if self.ui.checkBox_3.isChecked() is True:
+            print('get_auto_increase TURE')
+            Meter698_core.auto_00100200(1)
+        else:
+            print('get_auto_increase FLASE')
+            Meter698_core.auto_00100200(0)
+        return self.ui.checkBox_3.isChecked()
 
     def list_increas(self):
         num = self.ui.tableWidget.currentRow()
@@ -313,6 +323,14 @@ class Config(QDialog):
             self.conf.write(open('config.ini', 'w', encoding='utf-8'))
         except:
             print_exc(file=open('bug.txt', 'a+'))
+
+    def black_and_white(self):
+        if self.ui.radioButton_3.isChecked(): # 未启用
+            return 0
+        elif self.ui.radioButton.isChecked(): # 黑名单
+            return 1,self.ui.textEdit
+        elif self.ui.radioButton_2.isChecked(): # 白名单
+            return 2,self.ui.textEdit_2
 
 
 if __name__ == '__main__':

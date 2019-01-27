@@ -17,6 +17,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.addItem = self.GetSerialNumber()
         self.addItem.sort()
+        self.load_ini()
         self.Connect = Connect()
         for addItem in self.addItem:
             self.ui.comboBox.addItem(addItem)
@@ -26,7 +27,7 @@ class MainWindow(QMainWindow):
         self.config = Config()
         self.ui.toolButton.clicked.connect(self.config.show)
         self.__switch.connect(self.Show_Hidden)
-        self.load_ini()
+
 
     def load_ini(self):
         self.conf = configparser.ConfigParser()
@@ -47,8 +48,6 @@ class MainWindow(QMainWindow):
                     text = text.split(' ')
                     self.conf.set('MeterData', text[0], text[1] + ' ' + text[2][:-1])
                 self.conf.write(ini)
-                # todo
-
         except:
             print_exc(file=open('bug.txt', 'a+'))
 
@@ -229,8 +228,11 @@ class Config(QDialog):
         self.ui.pushButton.clicked.connect(self.get_auto_day_frozon)
         self.ui.pushButton.clicked.connect(self.get_auto_curve_frozon)
         self.ui.pushButton.clicked.connect(self.close)
+        self.ui.pushButton.clicked.connect(self.list_save)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
         self.ui.pushButton_4.clicked.connect(self.list_decreas)
+
+        self.conf = configparser.ConfigParser()
         self.deal_list()
 
     def get_auto_day_frozon(self):
@@ -261,7 +263,7 @@ class Config(QDialog):
         num = self.ui.tableWidget.currentRow()
         self.ui.tableWidget.removeRow(num)
 
-    def deal_list(self):
+    def deal_list_old(self):
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -278,6 +280,38 @@ class Config(QDialog):
                 self.ui.tableWidget.setItem(x, y, QTableWidgetItem(text_line))
                 y += 1
             x += 1
+
+    def deal_list(self):
+        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
+        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.conf.read('config.ini', encoding='GBK')
+        x = 0  # 行
+        text = self.conf.items('MeterData')
+        # print(text)
+        for items in text:
+            y = 0
+            self.ui.tableWidget.setItem(x, y, QTableWidgetItem(items[0]))
+            for item in items[1].split(' '):
+                y += 1
+                self.ui.tableWidget.setItem(x, y, QTableWidgetItem(item))
+            x += 1
+            self.ui.tableWidget.insertRow(x)
+        self.ui.tableWidget.removeRow(x)
+
+    def list_save(self):
+        x = self.ui.tableWidget.rowCount() - 1
+        while x:
+            y = 0
+            text_0 = self.ui.tableWidget.item(x, y).text()
+            text_1 = ''
+            while y < 2:
+                y += 1
+                text_1 = text_1 + ' ' + self.ui.tableWidget.item(x, y).text()
+            text_1 = text_1
+            self.conf.set('MeterData',text_0,text_1)
+            x -= 1
+        self.conf.write(open('config.ini','w'))
 
 
 if __name__ == '__main__':

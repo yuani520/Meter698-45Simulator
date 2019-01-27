@@ -1,6 +1,6 @@
 import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_core, time, UI_Meter698_config, \
     configparser, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView,QFileDialog
 from PyQt5.QtCore import pyqtSignal
 from Comm import makestr, get_list_sum
 from binascii import b2a_hex, a2b_hex
@@ -237,6 +237,13 @@ class Config(QDialog):
         self.conf = configparser.ConfigParser()
         self.deal_list()
         self.ui.pushButton_6.clicked.connect(self.clear)
+        self.ui.pushButton_5.clicked.connect(self.output_log)
+
+    def output_log(self):
+        txt = QFileDialog.getSaveFileName(self,'文件保存','C:/','All Files (*);;Text Files (*.txt)')
+        with open(txt[0],'w') as f:
+            text = MainWindow.ui.textEdit.toPlainText()
+            f.write(text)
 
     def clear(self):
         x = self.ui.tableWidget.rowCount() - 1
@@ -266,7 +273,7 @@ class Config(QDialog):
         return self.ui.checkBox_2.isChecked()
 
     def list_increas(self):
-        num = self.ui.tableWidget.rowCount()
+        num = self.ui.tableWidget.currentRow()
         self.ui.tableWidget.insertRow(num)
 
     def list_decreas(self):

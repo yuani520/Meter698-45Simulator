@@ -159,7 +159,7 @@ class Connect(threading.Thread):
                             if data[0] == '6' and data[1] == '8' and data[-1] == '6':
                                 if data[-1] == '6' and data[-2] == '1':
                                     print('Received: ', data)
-                                    Received_data = '收到:' + makestr(data)
+                                    Received_data = '收到:\n' + makestr(data)
                                     MainWindow._signal_text.emit(Received_data)
                                     self.Meter = Meter698_core
                                     sent = self.Meter.Analysis(data.replace(' ', ''))
@@ -169,7 +169,7 @@ class Connect(threading.Thread):
                                         content = self.Meter.ReturnMessage().transport()
                                         print('content:', content)
                                         message = '数据标识:' + get_list_sum(content)
-                                        sent = '发送:' + makestr(sent)
+                                        sent = '发送:\n' + makestr(sent)
                                         MainWindow._signal_text.emit(message)
                                         MainWindow._signal_text.emit(sent)
                                         times = time.strftime('%H:%M:%S')

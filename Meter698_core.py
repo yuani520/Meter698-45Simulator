@@ -616,6 +616,8 @@ class ReturnMessage():
         compose.close()
 
     def compose_data(self, OI):
+        self.get = self.conf_new.get('MeterData', OI)
+        self.get = self.get.split(' ')
         text = [OI, self.get[0], self.get[1]]
         if OI == '40000200':
             text = time.strftime('%Y%m%d%H%M%S')
@@ -645,10 +647,10 @@ class ReturnMessage():
                 OI_E = str(int(text[2][46:54]) + stop_time + 1).zfill(8)
                 print('start time:', start_time, 'stop time:', stop_time)
                 print('正向有功递增数值', OI_A)
-                text[2] = '010506' + OI_A + '06' + OI_B + '06' + OI_C + '06' + OI_D + '06' + OI_E + '0'
+                text[2] = '010506' + OI_A + '06' + OI_B + '06' + OI_C + '06' + OI_D + '06' + OI_E
             self.message = text[0] + '01' + text[2]
-            print('message', self.message[0:-1])
-            LargeOAD = LargeOAD + self.message[0:-1]
+            print('message', self.message)
+            LargeOAD = LargeOAD + self.message
         else:
             print('compose_data ERROR')
 
@@ -725,7 +727,9 @@ class ReturnMessage():
             self.get = self.get.split(' ')
             text = [newOI, self.get[0], self.get[1]]
             self.save(text)
-            if newOI == '50020200_20210200' or newOI == '50040200_20210200':
+            if auto_curve_sign == 1 and newOI == '50020200_20210200':
+                pass
+            elif auto_day_frozon_sign == 1 and newOI == '50040200_20210200':
                 pass
             else:
                 SequenceOf_ARecordRow(text[2])

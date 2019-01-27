@@ -498,7 +498,7 @@ def SequenceOf_ARecordRow(data):
 class ReturnMessage():
     def __init__(self):
         self.conf_new = configparser.ConfigParser()
-        self.conf_new.read('config.ini', encoding='GBK')
+        self.conf_new.read('config.ini', encoding='utf-8')
 
     def head(self):
         global SA_num

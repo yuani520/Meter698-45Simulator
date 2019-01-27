@@ -28,28 +28,31 @@ class MainWindow(QMainWindow):
         self.ui.toolButton.clicked.connect(self.config.show)
         self.__switch.connect(self.Show_Hidden)
 
-
     def load_ini(self):
         self.conf = configparser.ConfigParser()
         try:
             if os.path.exists('config.ini'):
-                self.conf.read('config.ini', encoding='GBK')
+                self.conf.read('config.ini', encoding='utf-8')
                 if self.conf.has_section('MeterData') is True:
                     pass
-                # todo
+                else:
+                    self.ini()
             else:
-                ini = open('config.ini', 'w')
-                self.conf.add_section('MeterData')
-                data = open('source\\698data', 'r', encoding='utf-8')
-                while 1:
-                    text = data.readline()
-                    if text == '\n':
-                        break
-                    text = text.split(' ')
-                    self.conf.set('MeterData', text[0], text[1] + ' ' + text[2][:-1])
-                self.conf.write(ini)
+                self.ini()
         except:
             print_exc(file=open('bug.txt', 'a+'))
+
+    def ini(self):
+        ini = open('config.ini', 'w', encoding='utf-8')
+        self.conf.add_section('MeterData')
+        data = open('source\\698data', 'r', encoding='utf-8')
+        while 1:
+            text = data.readline()
+            if text == '\n':
+                break
+            text = text.split(' ')
+            self.conf.set('MeterData', text[0], text[1] + ' ' + text[2][:-1])
+        self.conf.write(ini)
 
     def serial_prepare(self):
         try:
@@ -231,8 +234,15 @@ class Config(QDialog):
         self.ui.pushButton.clicked.connect(self.list_save)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
         self.ui.pushButton_4.clicked.connect(self.list_decreas)
-
         self.conf = configparser.ConfigParser()
+        self.deal_list()
+        self.ui.pushButton_6.clicked.connect(self.clear)
+
+    def clear(self):
+        x = self.ui.tableWidget.rowCount() - 1
+        while x:
+            self.ui.tableWidget.removeRow(x)
+            x -= 1
         self.deal_list()
 
     def get_auto_day_frozon(self):
@@ -263,32 +273,13 @@ class Config(QDialog):
         num = self.ui.tableWidget.currentRow()
         self.ui.tableWidget.removeRow(num)
 
-    def deal_list_old(self):
-        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        self.ui.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-        content = open('source\\698data', 'r', encoding='UTF-8', errors='ignore')
-        x = 0  # 行
-        while 1:
-            y = 0  # 列
-            text = content.readline()
-            if text == '\n':
-                break
-            text = text.split(' ')
-            self.ui.tableWidget.insertRow(x)
-            for text_line in text:
-                self.ui.tableWidget.setItem(x, y, QTableWidgetItem(text_line))
-                y += 1
-            x += 1
-
     def deal_list(self):
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.conf.read('config.ini', encoding='GBK')
+        self.conf.read('config.ini', encoding='utf-8')
         x = 0  # 行
         text = self.conf.items('MeterData')
-        # print(text)
         for items in text:
             y = 0
             self.ui.tableWidget.setItem(x, y, QTableWidgetItem(items[0]))
@@ -300,18 +291,21 @@ class Config(QDialog):
         self.ui.tableWidget.removeRow(x)
 
     def list_save(self):
-        x = self.ui.tableWidget.rowCount() - 1
-        while x:
-            y = 0
-            text_0 = self.ui.tableWidget.item(x, y).text()
-            text_1 = ''
-            while y < 2:
-                y += 1
-                text_1 = text_1 + ' ' + self.ui.tableWidget.item(x, y).text()
-            text_1 = text_1
-            self.conf.set('MeterData',text_0,text_1)
-            x -= 1
-        self.conf.write(open('config.ini','w'))
+        try:
+            x = self.ui.tableWidget.rowCount() - 1
+            while x:
+                y = 0
+                text_0 = self.ui.tableWidget.item(x, y).text()
+                text_1 = ''
+                while y < 2:
+                    y += 1
+                    text_1 = text_1 + ' ' + self.ui.tableWidget.item(x, y).text()
+                text_1 = text_1
+                self.conf.set('MeterData', text_0, text_1)
+                x -= 1
+            self.conf.write(open('config.ini', 'w', encoding='utf-8'))
+        except:
+            print_exc(file=open('bug.txt', 'a+'))
 
 
 if __name__ == '__main__':

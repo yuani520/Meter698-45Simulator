@@ -11,6 +11,25 @@ def check(code):
         return 1
 
 
+def B_W_add(stat, add):
+    global black_white_SA_address, black, white, b_w_stat
+    print('B_W_add:', black_white_SA_address)
+    if stat == 0:
+        b_w_stat = 0
+        black = []
+        white = []
+    elif stat == 1:
+        b_w_stat = 1
+        black_white_SA_address = add.replace(' ', '')
+        black_white_SA_address = black_white_SA_address.split('/')
+        black = black_white_SA_address
+    elif stat == 2:
+        b_w_stat = 2
+        black_white_SA_address = add.replace(' ', '')
+        black_white_SA_address = black_white_SA_address.split('/')
+        white = black_white_SA_address
+
+
 def Analysis(code):
     code = Comm.makelist(code)
     while 1:
@@ -21,13 +40,28 @@ def Analysis(code):
         Rectrlc_1 = ctrlc_1(Comm.dec2bin(int(code[3], 16)))  # 控制码
         code_remain = code[4:]
         SA_len_num = SASign(Comm.dec2bin(int(code_remain[0], 16)).zfill(8))
-        global SA_num_len, LargeOAD, relen, data, data_list, frozenSign
+        global SA_num_len, LargeOAD, relen, data, data_list, frozenSign, b_w_stat, black, white
         relen = 0
         LargeOAD = ''
         data = ''
         data_list = []
         frozenSign = 0
         SA_num_len = code_remain[0:1 + SA_len_num]
+        print('SA_num_len:', SA_num_len)
+        global black_white_SA_address
+        black_white_SA_address = Comm.list2str(SA_num_len[::-1][0:SA_len_num])
+        print('black_white_SA_address', black_white_SA_address)
+        # todo
+        if b_w_stat == 1:
+            for add in black:
+                if add == black_white_SA_address:
+                    return 1
+                pass
+        elif b_w_stat == 2:
+            for add in white:
+                if add == black_white_SA_address:
+                    return 1
+                pass
         CA = code_remain[1 + SA_len_num:][0]
         HCS = code_remain[1 + SA_len_num:][1] + code_remain[1 + SA_len_num:][2]
         APDU = code_remain[1 + SA_len_num:][3:-3]
@@ -228,14 +262,16 @@ def A_ResultRecord_SEQUENCE_RSD(remain):
 
 
 def RSD(remain):
+    global relen, sele
     if remain[0] == '01':
+        sele = 1
         print('Selector 01')
         A_ResultRecord_SEQUENCE_RSD(remain[1:5])
         reMessage = Data(remain[5], remain[6:])
-        global relen
         relen = 0
         return reMessage
     if remain[0] == '02':
+        sele = 2
         print('Selector 02')
         A_ResultRecord_SEQUENCE_RSD(remain[1:5])
         reMessage = Data(remain[5], remain[6:])
@@ -244,6 +280,7 @@ def RSD(remain):
         relen = 0
         return reMessage
     if remain[0] == '09':
+        sele = 9
         print('Selector 09')
         return remain[2:]
     else:
@@ -471,7 +508,7 @@ def SASign(num):
         print('3 广播地址')
     # print(' 逻辑地址: ', num[2], num[3])
     numadd1 = int(num[4:], base=2)
-    # print('地址长度 N: ', numadd1+1)
+    print('地址长度 N: ', numadd1 + 1)
     return numadd1 + 1
 
 
@@ -570,7 +607,6 @@ class ReturnMessage():
                 break
         return te
 
-
     def compose_data(self, OI):
         self.get = self.conf_new.get('MeterData', OI)
         self.get = self.get.split(' ')
@@ -622,23 +658,22 @@ class ReturnMessage():
         global OI
         OI = []
 
-
     def composefrozen(self, OI):
-        global frozenSign, auto_day_frozon_sign, auto_curve_sign
+        global frozenSign, auto_day_frozon_sign, auto_curve_sign,sele
         if frozenSign == 1 and OI[0] != '5':
             newOI = '50020200_' + OI
         if frozenSign == 2 and OI[0] != '5':
             newOI = '50040200_' + OI
-        if auto_day_frozon_sign == 1 and newOI == '50040200_20210200':
+        if auto_day_frozon_sign == 1 and newOI == '50040200_20210200' and sele != 9:
             print('自动日冻结时标')
             global Daily_freeze
             print('newOI', newOI)
-            self.save(['50040200_20210200', '日冻结', ''])
+            self.save(['50040200_20210200', '自动日冻结', ''])
             SequenceOf_ARecordRow(Daily_freeze)
-        if auto_curve_sign == 1 and newOI == '50020200_20210200':
+        if auto_curve_sign == 1 and newOI == '50020200_20210200'and sele != 9:
             print('自动曲线时标')
             print('curve_newOI', newOI)
-            self.save(['50020200_20210200', '曲线冻结', ''])
+            self.save(['50020200_20210200', '自动曲线冻结', ''])
             SequenceOf_ARecordRow(Daily_freeze)
         else:
             self.get = self.conf_new.get('MeterData', newOI)
@@ -646,13 +681,16 @@ class ReturnMessage():
             text = [newOI, self.get[0], self.get[1]]
             self.save(text)
             if auto_curve_sign == 1 and newOI == '50020200_20210200':
-                pass
+                if sele == 9:
+                    SequenceOf_ARecordRow(text[2])
             elif auto_day_frozon_sign == 1 and newOI == '50040200_20210200':
-                pass
+                if sele == 9:
+                    SequenceOf_ARecordRow(text[2])
             else:
                 SequenceOf_ARecordRow(text[2])
         global LargeOAD
         LargeOAD = LargeOAD + '00' + OI
+        sele = 0
 
 
 def set_auto_day_frozon(stat):
@@ -664,6 +702,7 @@ def curve_frozon(stat):
     global auto_curve_sign
     auto_curve_sign = stat
 
+
 def auto_00100200(stat):
     global auto_increase
     auto_increase = stat
@@ -673,7 +712,12 @@ OI = []
 start_time = time.time()
 auto_day_frozon_sign = 1
 auto_curve_sign = 1
-auto_increase=1
+auto_increase = 1
 GetRequestNormal_0501 = 0
 service_code = ''
 SA_num = 0
+black_white_SA_address = ''
+black = []
+white = []
+b_w_stat = 0
+sele = 0

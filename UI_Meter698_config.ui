@@ -28,7 +28,7 @@
      <x>20</x>
      <y>20</y>
      <width>621</width>
-     <height>301</height>
+     <height>321</height>
     </rect>
    </property>
    <property name="focusPolicy">
@@ -114,9 +114,9 @@
       </rect>
      </property>
      <property name="title">
-      <string>黑/白名单:(多地址用 / 隔开)</string>
+      <string>通信地址黑/白名单:(多地址用 / 隔开)</string>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -245,7 +245,7 @@
       <rect>
        <x>0</x>
        <y>270</y>
-       <width>239</width>
+       <width>121</width>
        <height>31</height>
       </rect>
      </property>

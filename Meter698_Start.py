@@ -229,12 +229,28 @@ class Config(QDialog):
         self.ui.pushButton.clicked.connect(self.get_auto_increase)
         self.ui.pushButton.clicked.connect(self.close)
         self.ui.pushButton.clicked.connect(self.list_save)
+        self.ui.pushButton.clicked.connect(self.bw)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
         self.ui.pushButton_4.clicked.connect(self.list_decreas)
         self.conf = configparser.ConfigParser()
         self.deal_list()
         self.ui.pushButton_6.clicked.connect(self.clear)
         self.ui.pushButton_5.clicked.connect(self.output_log)
+
+    def bw(self):
+        #todo
+        re = self.black_and_white()
+        Meter698_core.B_W_add(re[0],re[1])
+
+    def black_and_white(self):
+        if self.ui.radioButton_3.isChecked():  # 未启用
+            return 0,0
+
+        elif self.ui.radioButton.isChecked():  # 黑名单
+            return 1, self.ui.textEdit.toPlainText()
+
+        elif self.ui.radioButton_2.isChecked():  # 白名单
+            return 2, self.ui.textEdit_2.toPlainText()
 
     def output_log(self):
         txt = QFileDialog.getSaveFileName(self,'文件保存','C:/','Text Files (*.txt)')
@@ -324,13 +340,7 @@ class Config(QDialog):
         except:
             print_exc(file=open('bug.txt', 'a+'))
 
-    def black_and_white(self):
-        if self.ui.radioButton_3.isChecked(): # 未启用
-            return 0
-        elif self.ui.radioButton.isChecked(): # 黑名单
-            return 1,self.ui.textEdit
-        elif self.ui.radioButton_2.isChecked(): # 白名单
-            return 2,self.ui.textEdit_2
+
 
 
 if __name__ == '__main__':

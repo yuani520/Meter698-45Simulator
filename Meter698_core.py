@@ -1,4 +1,4 @@
-import Comm, time, traceback, configparser
+import Comm, time, traceback, configparser, random
 
 
 def check(code):
@@ -51,7 +51,6 @@ def Analysis(code):
         global black_white_SA_address
         black_white_SA_address = Comm.list2str(SA_num_len[::-1][0:SA_len_num])
         print('black_white_SA_address', black_white_SA_address)
-        # todo
         if b_w_stat == 1:
             for add in black:
                 if add == black_white_SA_address:
@@ -554,7 +553,6 @@ class ReturnMessage():
         global LargeOAD
         APDU_len = hex(len(Comm.makelist(LargeOAD)) + 6 + len(Comm.makelist(self.total)))[2:].zfill(2).zfill(4)
         print('APDUlen', APDU_len)
-
         self.head_message = Comm.strto0x(Comm.makelist(APDU_len[2:] + APDU_len[0:2] + self.total))
         self.HCS = str(hex(Comm.pppfcs16(0xffff, self.head_message, len(self.head_message)))).zfill(4)[2:]
         if len(self.HCS) == 3:
@@ -564,7 +562,6 @@ class ReturnMessage():
             self.HCS = self.HCS + '00'
         # print(self.HCS)
         LargeOAD = APDU_len[2:] + APDU_len[0:2] + self.total + self.HCS + LargeOAD
-
         self.full_message = Comm.strto0x(Comm.makelist(LargeOAD))
         self.FCS = str(hex(Comm.pppfcs16(0xffff, self.full_message, len(self.full_message)))).zfill(4)[2:]
         if len(self.FCS) == 3:
@@ -596,21 +593,25 @@ class ReturnMessage():
         relen += 1
 
     def Re_add(self):
+        global _max
         compose = open('source\\698data', 'r', encoding='UTF-8', errors='ignore')
         while 1:
             text = compose.readline()
             text = text.split(' ')
             if text[0] == '40010200':
                 compose.close()
-                te = text[2][6:-1]
+                te = str(int(text[2][6:-1]) + random.randint(0, _max)).zfill(18)
                 print('Re_add return', te)
                 break
         return te
 
     def compose_data(self, OI):
-        self.get = self.conf_new.get('MeterData', OI)
-        self.get = self.get.split(' ')
-        text = [OI, self.get[0], self.get[1]]
+        try:
+            self.get = self.conf_new.get('MeterData', OI)
+            self.get = self.get.split(' ')
+            text = [OI, self.get[0], self.get[1]]
+        except:
+            print('未知数据标识')
         if OI == '40000200':
             text = time.strftime('%Y%m%d%H%M%S')
             year = hex(int(text[0:4], 10))[2:].zfill(4)
@@ -659,7 +660,7 @@ class ReturnMessage():
         OI = []
 
     def composefrozen(self, OI):
-        global frozenSign, auto_day_frozon_sign, auto_curve_sign,sele
+        global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele
         if frozenSign == 1 and OI[0] != '5':
             newOI = '50020200_' + OI
         if frozenSign == 2 and OI[0] != '5':
@@ -670,15 +671,18 @@ class ReturnMessage():
             print('newOI', newOI)
             self.save(['50040200_20210200', '自动日冻结', ''])
             SequenceOf_ARecordRow(Daily_freeze)
-        if auto_curve_sign == 1 and newOI == '50020200_20210200'and sele != 9:
+        if auto_curve_sign == 1 and newOI == '50020200_20210200' and sele != 9:
             print('自动曲线时标')
             print('curve_newOI', newOI)
             self.save(['50020200_20210200', '自动曲线冻结', ''])
             SequenceOf_ARecordRow(Daily_freeze)
         else:
-            self.get = self.conf_new.get('MeterData', newOI)
-            self.get = self.get.split(' ')
-            text = [newOI, self.get[0], self.get[1]]
+            try:
+                self.get = self.conf_new.get('MeterData', newOI)
+                self.get = self.get.split(' ')
+                text = [newOI, self.get[0], self.get[1]]
+            except:
+                print('未知数据标识')
             self.save(text)
             if auto_curve_sign == 1 and newOI == '50020200_20210200':
                 if sele == 9:
@@ -708,6 +712,16 @@ def auto_00100200(stat):
     auto_increase = stat
 
 
+def change_max(mun):
+    global _max
+    _max = int(mun)
+
+
+def re_max():
+    global _max
+    return _max
+
+
 OI = []
 start_time = time.time()
 auto_day_frozon_sign = 1
@@ -721,3 +735,4 @@ black = []
 white = []
 b_w_stat = 0
 sele = 0
+_max = 100

@@ -1,6 +1,6 @@
 import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_core, time, UI_Meter698_config, \
     configparser, os
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView,QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView, QFileDialog
 from PyQt5.QtCore import pyqtSignal
 from Comm import makestr, get_list_sum
 from binascii import b2a_hex, a2b_hex
@@ -230,21 +230,30 @@ class Config(QDialog):
         self.ui.pushButton.clicked.connect(self.close)
         self.ui.pushButton.clicked.connect(self.list_save)
         self.ui.pushButton.clicked.connect(self.bw)
+        self.ui.pushButton.clicked.connect(self.set_max)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
         self.ui.pushButton_4.clicked.connect(self.list_decreas)
         self.conf = configparser.ConfigParser()
         self.deal_list()
         self.ui.pushButton_6.clicked.connect(self.clear)
         self.ui.pushButton_5.clicked.connect(self.output_log)
+        self.get_max()
+
+    def get_max(self):
+        self.ui.lineEdit.setText(str(Meter698_core.re_max()))
+
+    def set_max(self):
+        text = self.ui.lineEdit.displayText()
+        Meter698_core.change_max(text)
 
     def bw(self):
-        #todo
+        # todo
         re = self.black_and_white()
-        Meter698_core.B_W_add(re[0],re[1])
+        Meter698_core.B_W_add(re[0], re[1])
 
     def black_and_white(self):
         if self.ui.radioButton_3.isChecked():  # 未启用
-            return 0,0
+            return 0, 0
 
         elif self.ui.radioButton.isChecked():  # 黑名单
             return 1, self.ui.textEdit.toPlainText()
@@ -253,13 +262,13 @@ class Config(QDialog):
             return 2, self.ui.textEdit_2.toPlainText()
 
     def output_log(self):
-        txt = QFileDialog.getSaveFileName(self,'文件保存','C:/','Text Files (*.txt)')
+        txt = QFileDialog.getSaveFileName(self, '文件保存', 'C:/', 'Text Files (*.txt)')
         try:
-            with open(txt[0],'w') as f:
+            with open(txt[0], 'w') as f:
                 text = MainWindow.ui.textEdit.toPlainText()
                 f.write(text)
         except:
-            QMessageBox.about(self,'ERROR','文件保存失败')
+            QMessageBox.about(self, 'ERROR', '文件保存失败')
 
     def clear(self):
         x = self.ui.tableWidget.rowCount() - 1
@@ -339,8 +348,6 @@ class Config(QDialog):
             self.conf.write(open('config.ini', 'w', encoding='utf-8'))
         except:
             print_exc(file=open('bug.txt', 'a+'))
-
-
 
 
 if __name__ == '__main__':

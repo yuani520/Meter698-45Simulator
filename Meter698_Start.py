@@ -2,7 +2,7 @@ import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_co
     configparser, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView, QFileDialog
 from PyQt5.QtCore import pyqtSignal
-from Comm import makestr, get_list_sum
+from Comm import makestr, get_list_sum,makelist
 from binascii import b2a_hex, a2b_hex
 from traceback import print_exc
 
@@ -152,37 +152,38 @@ class Connect(threading.Thread):
                 global data, relen, LargeOAD, frozenSign, data_list
                 data = ''
                 while self.__runflag.isSet():
-                    time.sleep(0.7)
+                    time.sleep(0.1)
                     num = self.serial.inWaiting()
                     data = data + str(b2a_hex(self.serial.read(num)))[2:-1]
                     try:
                         if data != '':
-                            if data[0] == '6' and data[1] == '8' and data[-1] == '6':
+                            if data[0] == '6' and data[1] == '8':
                                 if data[-1] == '6' and data[-2] == '1':
                                     print('Received: ', data)
                                     Received_data = '收到:\n' + makestr(data)
                                     MainWindow._signal_text.emit(Received_data)
                                     self.Meter = Meter698_core
-                                    sent = self.Meter.Analysis(data.replace(' ', ''))
-                                    if sent != 1:
-                                        self.serial.write(a2b_hex(sent))
-                                        self.Meter.ReturnMessage()
-                                        content = self.Meter.ReturnMessage().transport()
-                                        print('content:', content)
-                                        message = '数据标识:' + get_list_sum(content)
-                                        sent = '发送:\n' + makestr(sent)
-                                        MainWindow._signal_text.emit(message)
-                                        MainWindow._signal_text.emit(sent)
-                                        times = time.strftime('%H:%M:%S')
-                                        MainWindow._signal_text.emit(times)
-                                        MainWindow._signal_text.emit('--------------------------------')
-                                        LargeOAD = ''
-                                        data_list = []
+                                    #todo
+                                    wild = Meter698_core.Wild_match_Analysis(data.replace(' ', ''))
+                                    if wild == 0:
+                                        print('检测到通配地址')
+                                        times = Meter698_core.re_max()
+                                        while times:
+                                            sent = self.Meter.Analysis(data.replace(' ', ''))
+                                            self._Sent(sent)
+                                            times -= 1
+
+                                    elif wild == 1:
+                                        sent = self.Meter.Analysis(data.replace(' ', ''))
+                                        self._Sent(sent)
+                                        continue
+                                    elif wild ==2:
                                         data = ''
-                                        frozenSign = 0
-                                        self.Meter.ReturnMessage().clear_OI()
+                                        continue
                                     else:
-                                        data = ''
+                                        print('???')
+
+
                             else:
                                 try:
                                     while 1:
@@ -195,8 +196,13 @@ class Connect(threading.Thread):
                                                 data = data[2:]
                                                 continue
                                         if data[0] == '6' and data[1] == '8':
-                                            print('不完整报文!继续接收:', data)
-                                            break
+                                            if Meter698_core.check(makelist(data)) == 0:
+                                                data = data + '16'
+                                                print('有效报文')
+                                                break
+                                            else:
+                                                print('不完整报文!继续接收:', data)
+                                                break
                                         if data[0] == 'f' and data[1] == 'e':
                                             data = data[2:]
                                             continue
@@ -217,6 +223,27 @@ class Connect(threading.Thread):
                 print_exc(file=open('bug.txt', 'a+'))
                 return 1
 
+    def _Sent(self, sent):
+        global data, relen, LargeOAD, frozenSign, data_list
+        if sent != 1:
+            self.serial.write(a2b_hex(sent))
+            self.Meter.ReturnMessage()
+            content = self.Meter.ReturnMessage().transport()
+            print('content:', content)
+            message = '数据标识:' + get_list_sum(content)
+            sent = '发送:\n' + makestr(sent)
+            MainWindow._signal_text.emit(message)
+            MainWindow._signal_text.emit(sent)
+            times = time.strftime('%H:%M:%S')
+            MainWindow._signal_text.emit(times)
+            MainWindow._signal_text.emit('--------------------------------')
+            LargeOAD = ''
+            data_list = []
+            data = ''
+            frozenSign = 0
+            self.Meter.ReturnMessage().clear_OI()
+        else:
+            data = ''
 
 class Config(QDialog):
     def __init__(self):
@@ -244,10 +271,12 @@ class Config(QDialog):
 
     def set_max(self):
         text = self.ui.lineEdit.displayText()
+        print('通配地址数量:',text)
         Meter698_core.change_max(text)
 
+
+
     def bw(self):
-        # todo
         re = self.black_and_white()
         Meter698_core.B_W_add(re[0], re[1])
 

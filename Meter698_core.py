@@ -30,11 +30,22 @@ def B_W_add(stat, add):
         white = black_white_SA_address
 
 
+def Wild_match_Analysis(code):
+    code = Comm.makelist(code)
+    re = check(code)
+    if re == 0:
+        SASign(Comm.dec2bin(int(code[4], 16)).zfill(8))
+        global SA_num
+        if SA_num == 1:
+            return 0
+        else:
+            return 1
+    else:
+        return 2
+
+
 def Analysis(code):
     code = Comm.makelist(code)
-    while 1:
-        if code[0] == '68':
-            break
     re = check(code)
     if re == 0:
         Rectrlc_1 = ctrlc_1(Comm.dec2bin(int(code[3], 16)))  # 控制码
@@ -592,26 +603,24 @@ class ReturnMessage():
         global relen
         relen += 1
 
-    def Re_add(self):
-        global _max
-        compose = open('source\\698data', 'r', encoding='UTF-8', errors='ignore')
-        while 1:
-            text = compose.readline()
-            text = text.split(' ')
-            if text[0] == '40010200':
-                compose.close()
-                te = str(int(text[2][6:-1]) + random.randint(0, _max)).zfill(18)
-                print('Re_add return', te)
-                break
-        return te
-
     def compose_data(self, OI):
+        global LargeOAD, auto_increase, trans
         try:
             self.get = self.conf_new.get('MeterData', OI)
             self.get = self.get.split(' ')
             text = [OI, self.get[0], self.get[1]]
         except:
             print('未知数据标识')
+        if OI == '40010200' or OI == '40020200':
+            st = ['40010200/40020200', '通信地址/表号', '']
+            self.save(st)
+            trans = str(int(text[2][6:-1]) + random.randint(0, _max)).zfill(12)
+            print('compose_data_trans', trans)
+            self.message = '40010200' + '01' + '550705' + trans
+            print('message', self.message)
+            LargeOAD = LargeOAD + self.message
+            return 0
+
         if OI == '40000200':
             text = time.strftime('%Y%m%d%H%M%S')
             year = hex(int(text[0:4], 10))[2:].zfill(4)
@@ -625,7 +634,6 @@ class ReturnMessage():
             self.save(st)
             self.message = '40000200' + '01' + times
             print('message', self.message)
-            global LargeOAD, auto_increase
             LargeOAD = LargeOAD + self.message
         elif text[0] == OI:
             print('text', text)
@@ -646,6 +654,19 @@ class ReturnMessage():
             LargeOAD = LargeOAD + self.message
         else:
             print('compose_data ERROR')
+
+    def Re_add(self):
+        global _max, trans
+        compose = open('source\\698data', 'r', encoding='UTF-8', errors='ignore')
+        while 1:
+            text = compose.readline()
+            text = text.split(' ')
+            if text[0] == '40010200' or text[0] == '40020200':
+                compose.close()
+                te = trans
+                print('Re_add return', te)
+                break
+        return te
 
     def save(self, text):
         global OI
@@ -735,4 +756,5 @@ black = []
 white = []
 b_w_stat = 0
 sele = 0
-_max = 100
+_max = 3
+trans = ''

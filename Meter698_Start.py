@@ -1,7 +1,8 @@
 import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_core, time, UI_Meter698_config, \
     configparser, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView, QFileDialog
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtGui import QIcon
 from Comm import makestr, get_list_sum, makelist
 from binascii import b2a_hex, a2b_hex
 from traceback import print_exc
@@ -21,12 +22,16 @@ class MainWindow(QMainWindow):
         self.Connect = Connect()
         for addItem in self.addItem:
             self.ui.comboBox.addItem(addItem)
-        self.setFixedSize(self.width(), self.height())
+        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
         self.ui.pushButton.clicked.connect(self.serial_prepare)
         self._signal_text.connect(self.Warming_message)
         self.config = Config()
         self.ui.toolButton.clicked.connect(self.config.show)
         self.__switch.connect(self.Show_Hidden)
+        self.setWindowIcon(QIcon('source/taxi.ico'))
+
+    def closeEvent(self, *args, **kwargs):
+        self.config.close()
 
     def load_ini(self):
         self.conf = configparser.ConfigParser()
@@ -34,9 +39,10 @@ class MainWindow(QMainWindow):
             if os.path.exists('config.ini'):
                 self.conf.read('config.ini', encoding='utf-8')
                 if self.conf.has_section('MeterData') is True:
-                    pass
+                    self._init_time_sign()
                 else:
                     self.ini()
+
             else:
                 self.ini()
         except:
@@ -52,6 +58,17 @@ class MainWindow(QMainWindow):
                 break
             text = text.split(' ')
             self.conf.set('MeterData', text[0], text[1] + ' ' + text[2][:-1])
+        self._init_time_sign()
+        self.conf.write(ini)
+
+    def _init_time_sign(self):
+        ini = open('config.ini', 'w', encoding='utf-8')
+        times = time.strftime('%Y%m%d%H%M%S')
+        year = hex(int(times[0:4], 10))[2:].zfill(4)
+        mouth = hex(int(times[4:6], 10))[2:].zfill(2)
+        day = hex(int(times[6:8], 10))[2:].zfill(2)
+        times = '1c' + year + mouth + day + '000000'
+        self.conf.set('MeterData', '50040200_20210200', '上一次日冻结时间' + ' ' + times)
         self.conf.write(ini)
 
     def serial_prepare(self):
@@ -250,7 +267,6 @@ class Config(QDialog):
         QDialog.__init__(self)
         self.ui = UI_Meter698_config.Ui_Dialog()
         self.ui.setupUi(self)
-        self.setFixedSize(self.width(), self.height())
         self.ui.pushButton.clicked.connect(self.get_auto_day_frozon)
         self.ui.pushButton.clicked.connect(self.get_auto_curve_frozon)
         self.ui.pushButton.clicked.connect(self.get_auto_increase)
@@ -265,6 +281,10 @@ class Config(QDialog):
         self.ui.pushButton_6.clicked.connect(self.clear)
         self.ui.pushButton_5.clicked.connect(self.output_log)
         self.get_max()
+        self.setWindowIcon(QIcon('source/taxi.ico'))
+        self.setFixedSize(self.width(), self.height())
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
 
     def get_max(self):
         self.ui.lineEdit.setText(str(Meter698_core.re_max()))

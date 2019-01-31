@@ -2,10 +2,15 @@ import Comm, time, traceback, configparser, random
 
 
 def check(code):
+    if len(code) < 15:
+        return 1
     lenth = int(code[2] + code[1], 16)  # 长度
     if len(code) >= lenth + 2:
-        print('check granted')
-        return 0
+        if code[lenth+1] == '16':
+            print('check granted')
+            return 0
+        else:
+            return 1
     else:
         print('check denied')
         return 1
@@ -48,7 +53,10 @@ def Analysis(code):
     code = Comm.makelist(code)
     re = check(code)
     if re == 0:
-        Rectrlc_1 = ctrlc_1(Comm.dec2bin(int(code[3], 16)))  # 控制码
+        try:
+            Rectrlc_1 = ctrlc_1(Comm.dec2bin(int(code[3], 16)))  # 控制码
+        except:
+            return 1
         code_remain = code[4:]
         SA_len_num = SASign(Comm.dec2bin(int(code_remain[0], 16)).zfill(8))
         global SA_num_len, LargeOAD, relen, data, data_list, frozenSign, b_w_stat, black, white

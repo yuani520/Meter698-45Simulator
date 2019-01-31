@@ -2,7 +2,7 @@ import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_co
     configparser, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView, QFileDialog
 from PyQt5.QtCore import pyqtSignal
-from Comm import makestr, get_list_sum,makelist
+from Comm import makestr, get_list_sum, makelist
 from binascii import b2a_hex, a2b_hex
 from traceback import print_exc
 
@@ -163,7 +163,7 @@ class Connect(threading.Thread):
                                     Received_data = '收到:\n' + makestr(data)
                                     MainWindow._signal_text.emit(Received_data)
                                     self.Meter = Meter698_core
-                                    #todo
+                                    # todo
                                     wild = Meter698_core.Wild_match_Analysis(data.replace(' ', ''))
                                     if wild == 0:
                                         print('检测到通配地址')
@@ -177,7 +177,7 @@ class Connect(threading.Thread):
                                         sent = self.Meter.Analysis(data.replace(' ', ''))
                                         self._Sent(sent)
                                         continue
-                                    elif wild ==2:
+                                    elif wild == 2:
                                         data = ''
                                         continue
                                     else:
@@ -244,6 +244,7 @@ class Connect(threading.Thread):
         else:
             data = ''
 
+
 class Config(QDialog):
     def __init__(self):
         QDialog.__init__(self)
@@ -270,10 +271,8 @@ class Config(QDialog):
 
     def set_max(self):
         text = self.ui.lineEdit.displayText()
-        print('通配地址数量:',text)
+        print('通配地址数量:', text)
         Meter698_core.change_max(text)
-
-
 
     def bw(self):
         re = self.black_and_white()

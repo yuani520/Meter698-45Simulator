@@ -42,7 +42,6 @@ class MainWindow(QMainWindow):
                     self._init_time_sign()
                 else:
                     self.ini()
-
             else:
                 self.ini()
         except:
@@ -166,7 +165,7 @@ class Connect(threading.Thread):
                 self.serial.open()
                 MainWindow.ui.pushButton.setText('关闭')
                 print('启动')
-                global data, relen, LargeOAD, frozenSign, data_list
+                global data
                 data = ''
                 while self.__runflag.isSet():
                     time.sleep(0.1)
@@ -180,16 +179,12 @@ class Connect(threading.Thread):
                                     Received_data = '收到:\n' + makestr(data)
                                     MainWindow._signal_text.emit(Received_data)
                                     self.Meter = Meter698_core
-                                    # todo
                                     wild = Meter698_core.Wild_match_Analysis(data.replace(' ', ''))
                                     if wild == 0:
                                         print('检测到通配地址')
                                         times = Meter698_core.re_max()
-                                        while times:
-                                            sent = self.Meter.Analysis(data.replace(' ', ''))
-                                            self._Sent(sent)
-                                            times -= 1
-
+                                        sent = self.Meter.Analysis(data.replace(' ', ''))
+                                        self._Sent(sent)
                                     elif wild == 1:
                                         sent = self.Meter.Analysis(data.replace(' ', ''))
                                         self._Sent(sent)
@@ -199,7 +194,6 @@ class Connect(threading.Thread):
                                         continue
                                     else:
                                         print('???')
-
                             else:
                                 try:
                                     while 1:
@@ -240,7 +234,7 @@ class Connect(threading.Thread):
                 return 1
 
     def _Sent(self, sent):
-        global data, relen, LargeOAD, frozenSign, data_list
+        global data, LargeOAD, frozenSign, data_list
         if sent != 1:
             self.serial.write(a2b_hex(sent))
             self.Meter.ReturnMessage()

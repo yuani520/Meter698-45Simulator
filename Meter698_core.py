@@ -2,7 +2,7 @@ import Comm, time, traceback, configparser, random
 
 
 def check(code):
-    if len(code) < 15:
+    if len(code) < 15 or len(code) > 200:
         return 1
     lenth = int(code[2] + code[1], 16)  # 长度
     if len(code) >= lenth + 2:
@@ -39,9 +39,11 @@ def Wild_match_Analysis(code):
     code = Comm.makelist(code)
     re = check(code)
     if re == 0:
-        SASign(Comm.dec2bin(int(code[4], 16)).zfill(8))
+        lenth = SASign(Comm.dec2bin(int(code[4], 16)).zfill(8))
+        wild_a_full = 'aa' * lenth
+        add_wild = Comm.list2str(code[5:5+lenth])
         global SA_num
-        if SA_num == 1:
+        if SA_num == 1 and wild_a_full == add_wild:
             return 0
         else:
             return 1

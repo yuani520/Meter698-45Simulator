@@ -30,6 +30,10 @@ class MainWindow(QMainWindow):
         self.__switch.connect(self.Show_Hidden)
         self.setWindowIcon(QIcon('source/taxi.ico'))
 
+        self.ui.pushButton_2.setToolTip('清空当前窗口记录')
+        self.ui.toolButton.setToolTip('设置')
+
+
     def closeEvent(self, *args, **kwargs):
         self.config.close()
 
@@ -347,6 +351,16 @@ class Config(QDialog):
             print('get_auto_increase FLASE')
             Meter698_core.auto_00100200(0)
         return self.ui.checkBox_3.isChecked()
+
+    def get_auto_increase_5004020000100200(self):
+        print('increase', self.ui.checkBox_4.isChecked())
+        if self.ui.checkBox_4.isChecked() is True:
+            print('get_auto_increase TURE')
+            Meter698_core.auto_500400100200(1)
+        else:
+            print('get_auto_increase FLASE')
+            Meter698_core.auto_500400100200(0)
+        return self.ui.checkBox_4.isChecked()
 
     def list_increas(self):
         num = self.ui.tableWidget.currentRow()

@@ -6,7 +6,7 @@ def check(code):
         return 1
     lenth = int(code[2] + code[1], 16)  # 长度
     if len(code) >= lenth + 2:
-        if code[lenth+1] == '16':
+        if code[lenth + 1] == '16':
             print('check granted')
             return 0
         else:
@@ -35,13 +35,13 @@ def B_W_add(stat, add):
         white = black_white_SA_address
 
 
-def Wild_match_Analysis(code):
+def Wild_match_Analysis(code):  # NEW
     code = Comm.makelist(code)
     re = check(code)
     if re == 0:
         lenth = SASign(Comm.dec2bin(int(code[4], 16)).zfill(8))
         wild_a_full = 'aa' * lenth
-        add_wild = Comm.list2str(code[5:5+lenth])
+        add_wild = Comm.list2str(code[5:5 + lenth])
         global SA_num
         if SA_num == 1 and wild_a_full == add_wild:
             return 0
@@ -287,7 +287,7 @@ def RSD(remain):
         sele = 1
         print('Selector 01')
         A_ResultRecord_SEQUENCE_RSD(remain[1:5])
-        reMessage = Data(remain[5], remain[6:])
+        reMessage = Data(remain[5], remain[6:])  # 收到的冻结时间
         relen = 0
         return reMessage
     if remain[0] == '02':
@@ -295,8 +295,7 @@ def RSD(remain):
         print('Selector 02')
         A_ResultRecord_SEQUENCE_RSD(remain[1:5])
         reMessage = Data(remain[5], remain[6:])
-        # reMessage = Data(reMessage[0], reMessage[1:])
-        reMessage = Data(reMessage[8], reMessage[9:])
+        reMessage = Data(reMessage[8], reMessage[9:])  # 收到的冻结时间
         relen = 0
         return reMessage
     if remain[0] == '09':
@@ -462,9 +461,13 @@ def Data(DataDescribe, args):
             second).zfill(2)
         print(datatime)
         global Daily_freeze
-        Daily_freeze = '1c' + Comm.list2str(args[0:7])
+        Daily_freeze = '1c' + Comm.list2str(args[0:7])  # 冻结返回时间
+
+        # todo
         print('Daily_freeze', Daily_freeze)
-        # print(args[7:])
+        global Difference
+        Difference = abs(int(time.strftime('%m%d'), 10) - (mouth * 100 + day))
+
         return args[7:]
     elif DataDescribe == '80':
         print('OAD ', DataDescribe)
@@ -715,7 +718,11 @@ class ReturnMessage():
             except:
                 print('未知数据标识')
             self.save(text)
-            if auto_curve_sign == 1 and newOI == '50020200_20210200':
+
+            if auto_increase_500400100200 == 1 and newOI == '50040200_00100200':
+                SequenceOf_ARecordRow(analysis_increase(text[2]))
+            # todo
+            elif auto_curve_sign == 1 and newOI == '50020200_20210200':
                 if sele == 9:
                     SequenceOf_ARecordRow(text[2])
             elif auto_day_frozon_sign == 1 and newOI == '50040200_20210200':
@@ -726,6 +733,24 @@ class ReturnMessage():
         global LargeOAD
         LargeOAD = LargeOAD + '00' + OI
         sele = 0
+
+
+def analysis_increase(data):
+    global Difference
+    print('Difference:',Difference)
+    data = Comm.makelist(data)
+    value = data[2:]
+    count = len(value) // 5
+    value_after = '0105'
+    while count:
+        value_1 = value[1:5]
+        value_after = value_after + '06' + str(int(Comm.list2str(value_1)) + Difference).zfill(8)
+        count -= 1
+        print('value_after1',value_after)
+    print('value_after2', value_after)
+    return value_after
+
+    '01 05 06 00 00 00 04 0600000001060000000106000000010600000001'
 
 
 def set_auto_day_frozon(stat):
@@ -743,6 +768,11 @@ def auto_00100200(stat):
     auto_increase = stat
 
 
+def auto_500400100200(stat):
+    global auto_increase_500400100200
+    auto_increase_500400100200 = stat
+
+
 def change_max(mun):
     global _max
     _max = int(mun)
@@ -757,6 +787,7 @@ OI = []
 start_time = time.time()
 auto_day_frozon_sign = 1
 auto_curve_sign = 1
+auto_increase_500400100200 = 1
 auto_increase = 1
 GetRequestNormal_0501 = 0
 service_code = ''

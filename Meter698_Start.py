@@ -284,6 +284,11 @@ class Config(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
 
+        self.ui.checkBox_3.setToolTip('00100200 随软件启动时间逐步递增')
+        self.ui.checkBox_2.setToolTip('返回抄表报文内的时标')
+        self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')
+        self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化')
+
     def get_max(self):
         self.ui.lineEdit.setText(str(Meter698_core.re_max()))
 

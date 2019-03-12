@@ -18,7 +18,7 @@ def check(code):
 
 def B_W_add(stat, add):
     global black_white_SA_address, black, white, b_w_stat
-    print('B_W_add:', black_white_SA_address)
+
     if stat == 0:
         b_w_stat = 0
         black = []
@@ -33,6 +33,7 @@ def B_W_add(stat, add):
         black_white_SA_address = add.replace(' ', '')
         black_white_SA_address = black_white_SA_address.split('/')
         white = black_white_SA_address
+    print('B_W_add:', black_white_SA_address)
 
 
 def Wild_match_Analysis(code):  # NEW
@@ -144,6 +145,8 @@ def Information(num, detail, APDU):
                 frozenSign = 1
             if returnvalue == '5004':
                 frozenSign = 2
+            if returnvalue == '5006':
+                frozenSign = 3
             reCSD = RSD(APDU[5:])
             RCSD(reCSD[0], reCSD[1:])
             print('LargeOAD', LargeOAD)
@@ -596,7 +599,7 @@ class ReturnMessage():
         # print(self.FCS)
         LargeOAD = '68' + LargeOAD + self.FCS + '16'
         print('发送报文:', LargeOAD)
-        # self.clear_OI()
+
 
     def Full_LargeOAD(self):
         global LargeOAD
@@ -623,9 +626,9 @@ class ReturnMessage():
             self.get = self.get.split(' ')
             text = [OI, self.get[0], self.get[1]]
         except:
-            print('未知数据标识')
-        if OI == '40010200' or OI == '40020200':
-            st = ['40010200/40020200', '通信地址/表号', '']
+            print('未知数据标识{}'.format(OI))
+        if OI == '40010200' or OI == '40020200' or OI == '202a0200':
+            st = ['202a0200/40010200/40020200', '目标服务器地址/通信地址/表号', '']
             self.save(st)
             trans = str(int(text[2][6:-1]) + random.randint(0, _max)).zfill(12)
             print('compose_data_trans', trans)
@@ -692,19 +695,29 @@ class ReturnMessage():
     def clear_OI(self):
         global OI
         OI = []
-
+#TODO
     def composefrozen(self, OI):
-        global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele
+        global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele,SA_num_len
         if frozenSign == 1 and OI[0] != '5':
             newOI = '50020200_' + OI
         if frozenSign == 2 and OI[0] != '5':
             newOI = '50040200_' + OI
+        if frozenSign == 3 and OI[0] != '5':
+            newOI = '50060200_' +  OI
+
         if auto_day_frozon_sign == 1 and newOI == '50040200_20210200' and sele != 9:
             print('自动日冻结时标')
-            global Daily_freeze
+            global Daily_freeze # 冻结时间
             print('newOI', newOI)
             self.save(['50040200_20210200', '自动日冻结', ''])
             SequenceOf_ARecordRow(Daily_freeze)
+
+        if auto_day_frozon_sign == 1 and newOI == '50060200_20210200' and sele != 9:
+            print('自动月冻结时标')
+            print('newOI', newOI)
+            self.save(['50060200_20210200', '自动月冻结', ''])
+            SequenceOf_ARecordRow(Daily_freeze)
+
         if auto_curve_sign == 1 and newOI == '50020200_20210200' and sele != 9:
             print('自动曲线时标')
             print('curve_newOI', newOI)
@@ -716,7 +729,14 @@ class ReturnMessage():
                 self.get = self.get.split(' ')
                 text = [newOI, self.get[0], self.get[1]]
             except:
-                print('未知数据标识')
+                if OI == '202a0200':
+                    pass
+                else:
+                    print('未知数据标识{}'.format(OI))
+
+            if newOI == '50020200_202a0200' or newOI == '50040200_202a0200':
+                text = [newOI, '目标服务器地址', '5507'+Comm.list2str(SA_num_len)]
+
             self.save(text)
 
             if auto_increase_500400100200 == 1 and newOI == '50040200_00100200':
@@ -725,7 +745,7 @@ class ReturnMessage():
             elif auto_curve_sign == 1 and newOI == '50020200_20210200':
                 if sele == 9:
                     SequenceOf_ARecordRow(text[2])
-            elif auto_day_frozon_sign == 1 and newOI == '50040200_20210200':
+            elif (auto_day_frozon_sign == 1 and newOI == '50040200_20210200') or (auto_day_frozon_sign == 1 and newOI == '50060200_20210200'):
                 if sele == 9:
                     SequenceOf_ARecordRow(text[2])
             else:

@@ -298,8 +298,8 @@ class Config(QDialog):
         Meter698_core.change_max(text)
 
     def bw(self):
-        re = self.black_and_white()
-        Meter698_core.B_W_add(re[0], re[1])
+        re_ = self.black_and_white()
+        Meter698_core.B_W_add(re_[0], re_[1])
 
     def black_and_white(self):
         if self.ui.radioButton_3.isChecked():  # 未启用

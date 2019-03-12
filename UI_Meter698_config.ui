@@ -55,7 +55,7 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>145</width>
+       <width>157</width>
        <height>112</height>
       </rect>
      </property>
@@ -92,7 +92,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>日冻结时标自动修正</string>
+         <string>日、月冻结时标自动修正</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -310,7 +310,7 @@
       <rect>
        <x>0</x>
        <y>270</y>
-       <width>131</width>
+       <width>239</width>
        <height>31</height>
       </rect>
      </property>

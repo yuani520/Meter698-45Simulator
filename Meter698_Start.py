@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
         self.addItem = self.GetSerialNumber()
         while 1:
             if self.addItem == None:
-                Warn = QMessageBox.warning(self,'警告','未检测到串口',QMessageBox.Reset|QMessageBox.Cancel)
+                Warn = QMessageBox.warning(self, '警告', '未检测到串口', QMessageBox.Reset | QMessageBox.Cancel)
                 if Warn == QMessageBox.Cancel:
                     self.close()
                 if Warn == QMessageBox.Reset:
@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
         self.addItem.sort()
         self.load_ini()
         self.Connect = Connect()
+        self.Run = RuningTime()
         for addItem in self.addItem:
             self.ui.comboBox.addItem(addItem)
         self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
@@ -39,10 +40,11 @@ class MainWindow(QMainWindow):
         self.ui.toolButton.clicked.connect(self.config.show)
         self.__switch.connect(self.Show_Hidden)
         self.setWindowIcon(QIcon('source/taxi.ico'))
-
         self.ui.pushButton_2.setToolTip('清空当前窗口记录')
         self.ui.toolButton.setToolTip('设置')
 
+    def showtime(self):
+        self.ui.label_5.setText()
 
     def closeEvent(self, *args, **kwargs):
         try:
@@ -94,6 +96,8 @@ class MainWindow(QMainWindow):
             self.ui.pushButton.disconnect()
             self.ui.pushButton.clicked.connect(self.Connect.switch)
             self.__switch.emit('1')
+            self.Run.setDaemon(True)
+            self.Run.start()
         except:
             print_exc(file=open('bug.txt', 'a+'))
 
@@ -126,12 +130,34 @@ class MainWindow(QMainWindow):
             self.ui.comboBox_4.setDisabled(1)
 
 
+class RuningTime(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        self.start = time.time()
+        while 1:
+            time.sleep(1)
+            self.end = time.time()
+            a = int(self.end - self.start)
+            if a > 60:
+                b = a // 60
+                MainWindow.ui.label_5.setText('System runing time: ' + str(b) + ' min')
+            elif a > 3600:
+                b = a // 3600
+                MainWindow.ui.label_5.setText('System runing time: ' + str(b) + ' hour')
+            else:
+                MainWindow.ui.label_5.setText('System runing time: ' + str(a) + ' sec')
+
+
+
 class Connect(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.serial = serial.Serial()
         self.__runflag = threading.Event()
         self.config = Config()
+        self.run_ = RuningTime()
 
     def switch(self):
         if self.__runflag.isSet():

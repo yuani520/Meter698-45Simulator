@@ -17,6 +17,16 @@ class MainWindow(QMainWindow):
         self.ui = UI_Meter698.Ui_MainWindow()
         self.ui.setupUi(self)
         self.addItem = self.GetSerialNumber()
+        while 1:
+            if self.addItem == None:
+                Warn = QMessageBox.warning(self,'警告','未检测到串口',QMessageBox.Reset|QMessageBox.Cancel)
+                if Warn == QMessageBox.Cancel:
+                    self.close()
+                if Warn == QMessageBox.Reset:
+                    self.addItem = self.GetSerialNumber()
+                continue
+            else:
+                break
         self.addItem.sort()
         self.load_ini()
         self.Connect = Connect()
@@ -35,7 +45,10 @@ class MainWindow(QMainWindow):
 
 
     def closeEvent(self, *args, **kwargs):
-        self.config.close()
+        try:
+            self.config.close()
+        finally:
+            sys.exit()
 
     def load_ini(self):
         self.conf = configparser.ConfigParser()
@@ -272,6 +285,7 @@ class Config(QDialog):
         self.ui.pushButton.clicked.connect(self.list_save)
         self.ui.pushButton.clicked.connect(self.bw)
         self.ui.pushButton.clicked.connect(self.set_max)
+        self.ui.pushButton.clicked.connect(self.set_mac)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
         self.ui.pushButton_4.clicked.connect(self.list_decreas)
         self.conf = configparser.ConfigParser()
@@ -288,6 +302,7 @@ class Config(QDialog):
         self.ui.checkBox_2.setToolTip('返回抄表报文内的时标')
         self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')
         self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化')
+        self.ui.checkBox_5.setToolTip('明文回复附带MAC‘0A0B0C0D’')
 
     def get_max(self):
         self.ui.lineEdit.setText(str(Meter698_core.re_max()))
@@ -366,6 +381,16 @@ class Config(QDialog):
             print('get_auto_increase FLASE')
             Meter698_core.auto_500400100200(0)
         return self.ui.checkBox_4.isChecked()
+
+    def set_mac(self):
+        print('set', self.ui.checkBox_5.isChecked())
+        if self.ui.checkBox_5.isChecked() is True:
+            print('set_mac TURE')
+            Meter698_core.mac(1)
+        else:
+            print('set_mac FLASE')
+            Meter698_core.mac(0)
+        return self.ui.checkBox_5.isChecked()
 
     def list_increas(self):
         num = self.ui.tableWidget.currentRow()

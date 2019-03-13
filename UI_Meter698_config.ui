@@ -55,8 +55,8 @@
       <rect>
        <x>10</x>
        <y>30</y>
-       <width>157</width>
-       <height>112</height>
+       <width>169</width>
+       <height>134</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -92,7 +92,7 @@
          <enum>Qt::LeftToRight</enum>
         </property>
         <property name="text">
-         <string>日、月冻结时标自动修正</string>
+         <string>日月冻结时标自动修正</string>
         </property>
         <property name="checked">
          <bool>true</bool>
@@ -141,6 +141,44 @@
        </widget>
       </item>
       <item>
+       <widget class="QCheckBox" name="checkBox_5">
+        <property name="font">
+         <font>
+          <family>Algerian</family>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+          <underline>false</underline>
+          <strikeout>false</strikeout>
+         </font>
+        </property>
+        <property name="cursor">
+         <cursorShape>ArrowCursor</cursorShape>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="whatsThis">
+         <string/>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="text">
+         <string>*明文安全响应（回复MAC）</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="autoRepeat">
+         <bool>false</bool>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <layout class="QHBoxLayout" name="horizontalLayout_5">
         <property name="leftMargin">
          <number>5</number>
@@ -172,10 +210,10 @@
     <widget class="QGroupBox" name="groupBox_2">
      <property name="geometry">
       <rect>
-       <x>160</x>
+       <x>180</x>
        <y>17</y>
-       <width>441</width>
-       <height>251</height>
+       <width>421</width>
+       <height>261</height>
       </rect>
      </property>
      <property name="title">
@@ -310,7 +348,7 @@
       <rect>
        <x>0</x>
        <y>270</y>
-       <width>239</width>
+       <width>111</width>
        <height>31</height>
       </rect>
      </property>
@@ -375,6 +413,45 @@
       </property>
       <property name="text">
        <string>txt格式</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>120</y>
+       <width>161</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>About：</string>
+     </property>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>30</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Version：V1.1</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>60</y>
+        <width>131</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Time_update：190312</string>
       </property>
      </widget>
     </widget>

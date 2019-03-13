@@ -99,7 +99,7 @@ def Analysis(code):
 
 
 def Information(num, detail, APDU):
-    global service_code
+    global service_code,SecType
     service_code = APDU[0]
     if num == '01':
         print(num, '预链接请求')
@@ -152,7 +152,6 @@ def Information(num, detail, APDU):
             print('LargeOAD', LargeOAD)
             print('返回项数量', relen)
             LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
-            # ReturnMessage().reAPDUtype(num + detail + '00')
             datatype = num + detail + service_code
             datatype = '8' + datatype[1:]
             datatype = datatype.replace(' ', '')
@@ -205,7 +204,14 @@ def Information(num, detail, APDU):
             left = APDU[seclen + 1:]
             SecType = left[0]
             if SecType == '01':
+                global mac
+                if mac == 1:
+                    pass
+                else:
+                    SecType == '00'
+
                 Information(realAPDU[0], realAPDU[1], realAPDU[2:])
+
             else:
                 print('非随机数无法读取')
         if detail == '01':
@@ -577,9 +583,15 @@ class ReturnMessage():
 
     def totallenth(self):
         self.total = self.ctrlzone + self.add + self.CA
-        global LargeOAD
-        APDU_len = hex(len(Comm.makelist(LargeOAD)) + 6 + len(Comm.makelist(self.total)))[2:].zfill(2).zfill(4)
-        print('APDUlen', APDU_len)
+        global LargeOAD ,SecType
+        print('完整的APDU ',LargeOAD)
+        if SecType == '01':
+            LargeOAD = '9000'+ hex(len(LargeOAD)//2)[2:] + LargeOAD + '0100040a0b0c0d'
+            SecType == '00'
+            print('完整的APDU加MAC ', LargeOAD)
+        APDU_len = hex(len(Comm.makelist(LargeOAD)) + 6 + len(Comm.makelist(self.total)))[2:].zfill(4)
+        print('总长（不包括头和尾）', APDU_len)
+
         self.head_message = Comm.strto0x(Comm.makelist(APDU_len[2:] + APDU_len[0:2] + self.total))
         self.HCS = str(hex(Comm.pppfcs16(0xffff, self.head_message, len(self.head_message)))).zfill(4)[2:]
         if len(self.HCS) == 3:
@@ -599,6 +611,10 @@ class ReturnMessage():
         # print(self.FCS)
         LargeOAD = '68' + LargeOAD + self.FCS + '16'
         print('发送报文:', LargeOAD)
+
+
+
+
 
 
     def Full_LargeOAD(self):
@@ -770,7 +786,6 @@ def analysis_increase(data):
     print('value_after2', value_after)
     return value_after
 
-    '01 05 06 00 00 00 04 0600000001060000000106000000010600000001'
 
 
 def set_auto_day_frozon(stat):
@@ -792,6 +807,9 @@ def auto_500400100200(stat):
     global auto_increase_500400100200
     auto_increase_500400100200 = stat
 
+def add_mac(stat):
+    global mac
+    mac = stat
 
 def change_max(mun):
     global _max
@@ -809,6 +827,7 @@ auto_day_frozon_sign = 1
 auto_curve_sign = 1
 auto_increase_500400100200 = 1
 auto_increase = 1
+mac = 1
 GetRequestNormal_0501 = 0
 service_code = ''
 SA_num = 0
@@ -819,3 +838,4 @@ b_w_stat = 0
 sele = 0
 _max = 3
 trans = ''
+SecType = '00'

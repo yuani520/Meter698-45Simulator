@@ -43,6 +43,10 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_2.setToolTip('清空当前窗口记录')
         self.ui.toolButton.setToolTip('设置')
 
+    def reinite(self):
+        self.config = Config()
+        self.ui.toolButton.clicked.connect(self.config.show)
+
     def showtime(self):
         self.ui.label_5.setText()
 
@@ -323,12 +327,14 @@ class Config(QDialog):
         self.setFixedSize(self.width(), self.height())
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
-
         self.ui.checkBox_3.setToolTip('00100200 随软件启动时间逐步递增')
         self.ui.checkBox_2.setToolTip('返回抄表报文内的时标')
         self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')
         self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化')
         self.ui.checkBox_5.setToolTip('明文回复附带MAC‘0A0B0C0D’')
+
+    def closeEvent(self, QCloseEvent):
+        MainWindow.reinite()
 
     def get_max(self):
         self.ui.lineEdit.setText(str(Meter698_core.re_max()))
@@ -412,10 +418,10 @@ class Config(QDialog):
         print('set', self.ui.checkBox_5.isChecked())
         if self.ui.checkBox_5.isChecked() is True:
             print('set_mac TURE')
-            Meter698_core.mac(1)
+            Meter698_core.add_mac(1)
         else:
             print('set_mac FLASE')
-            Meter698_core.mac(0)
+            Meter698_core.add_mac(0)
         return self.ui.checkBox_5.isChecked()
 
     def list_increas(self):

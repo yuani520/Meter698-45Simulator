@@ -99,7 +99,7 @@ def Analysis(code):
 
 
 def Information(num, detail, APDU):
-    global service_code,SecType
+    global service_code, SecType
     service_code = APDU[0]
     if num == '01':
         print(num, '预链接请求')
@@ -471,8 +471,6 @@ def Data(DataDescribe, args):
         print(datatime)
         global Daily_freeze
         Daily_freeze = '1c' + Comm.list2str(args[0:7])  # 冻结返回时间
-
-        # todo
         print('Daily_freeze', Daily_freeze)
         global Difference
         Difference = abs(int(time.strftime('%m%d'), 10) - (mouth * 100 + day))
@@ -583,10 +581,17 @@ class ReturnMessage():
 
     def totallenth(self):
         self.total = self.ctrlzone + self.add + self.CA
-        global LargeOAD ,SecType
-        print('完整的APDU ',LargeOAD)
+        global LargeOAD, SecType
+        print('完整的APDU ', LargeOAD)
         if SecType == '01':
-            LargeOAD = '9000'+ hex(len(LargeOAD)//2)[2:] + LargeOAD + '0100040a0b0c0d'
+            sec_len = len(LargeOAD) // 2
+            if sec_len > 127:
+                if sec_len < 255:
+                    sec_len = '81' + hex(len(LargeOAD) // 2)[2:]
+                elif sec_len > 255 and sec_len < 65535:
+                    sec_len = '82' + hex(len(LargeOAD) // 2)[2:].zfill(4)[2:]+hex(len(LargeOAD) // 2)[2:].zfill(4)[0:2]
+            else:sec_len = hex(len(LargeOAD) // 2)[2:]
+            LargeOAD = '9000' + sec_len + LargeOAD + '0100040a0b0c0d'
             SecType == '00'
             print('完整的APDU加MAC ', LargeOAD)
         APDU_len = hex(len(Comm.makelist(LargeOAD)) + 6 + len(Comm.makelist(self.total)))[2:].zfill(4)
@@ -611,11 +616,6 @@ class ReturnMessage():
         # print(self.FCS)
         LargeOAD = '68' + LargeOAD + self.FCS + '16'
         print('发送报文:', LargeOAD)
-
-
-
-
-
 
     def Full_LargeOAD(self):
         global LargeOAD
@@ -711,19 +711,20 @@ class ReturnMessage():
     def clear_OI(self):
         global OI
         OI = []
-#TODO
+
+    # TODO
     def composefrozen(self, OI):
-        global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele,SA_num_len
+        global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele, SA_num_len
         if frozenSign == 1 and OI[0] != '5':
             newOI = '50020200_' + OI
         if frozenSign == 2 and OI[0] != '5':
             newOI = '50040200_' + OI
         if frozenSign == 3 and OI[0] != '5':
-            newOI = '50060200_' +  OI
+            newOI = '50060200_' + OI
 
         if auto_day_frozon_sign == 1 and newOI == '50040200_20210200' and sele != 9:
             print('自动日冻结时标')
-            global Daily_freeze # 冻结时间
+            global Daily_freeze  # 冻结时间
             print('newOI', newOI)
             self.save(['50040200_20210200', '自动日冻结', ''])
             SequenceOf_ARecordRow(Daily_freeze)
@@ -751,17 +752,17 @@ class ReturnMessage():
                     print('未知数据标识{}'.format(OI))
 
             if newOI == '50020200_202a0200' or newOI == '50040200_202a0200':
-                text = [newOI, '目标服务器地址', '5507'+Comm.list2str(SA_num_len)]
+                text = [newOI, '目标服务器地址', '5507' + Comm.list2str(SA_num_len)]
 
             self.save(text)
 
             if auto_increase_500400100200 == 1 and newOI == '50040200_00100200':
                 SequenceOf_ARecordRow(analysis_increase(text[2]))
-            # todo
             elif auto_curve_sign == 1 and newOI == '50020200_20210200':
                 if sele == 9:
                     SequenceOf_ARecordRow(text[2])
-            elif (auto_day_frozon_sign == 1 and newOI == '50040200_20210200') or (auto_day_frozon_sign == 1 and newOI == '50060200_20210200'):
+            elif (auto_day_frozon_sign == 1 and newOI == '50040200_20210200') or (
+                    auto_day_frozon_sign == 1 and newOI == '50060200_20210200'):
                 if sele == 9:
                     SequenceOf_ARecordRow(text[2])
             else:
@@ -773,7 +774,7 @@ class ReturnMessage():
 
 def analysis_increase(data):
     global Difference
-    print('Difference:',Difference)
+    print('Difference:', Difference)
     data = Comm.makelist(data)
     value = data[2:]
     count = len(value) // 5
@@ -782,10 +783,9 @@ def analysis_increase(data):
         value_1 = value[1:5]
         value_after = value_after + '06' + str(int(Comm.list2str(value_1)) + Difference).zfill(8)
         count -= 1
-        print('value_after1',value_after)
+        print('value_after1', value_after)
     print('value_after2', value_after)
     return value_after
-
 
 
 def set_auto_day_frozon(stat):
@@ -807,9 +807,11 @@ def auto_500400100200(stat):
     global auto_increase_500400100200
     auto_increase_500400100200 = stat
 
+
 def add_mac(stat):
     global mac
     mac = stat
+
 
 def change_max(mun):
     global _max

@@ -142,12 +142,12 @@ class RuningTime(threading.Thread):
             a = int(self.end - self.start)
             if a > 60:
                 b = a // 60
-                MainWindow.ui.label_5.setText('System runing time: ' + str(b) + ' min')
+                MainWindow.ui.label_5.setText('System running time: ' + str(b) + ' min')
             elif a > 3600:
                 b = a // 3600
-                MainWindow.ui.label_5.setText('System runing time: ' + str(b) + ' hour')
+                MainWindow.ui.label_5.setText('System running time: ' + str(b) + ' hour')
             else:
-                MainWindow.ui.label_5.setText('System runing time: ' + str(a) + ' sec')
+                MainWindow.ui.label_5.setText('System running time: ' + str(a) + ' sec')
 
 
 

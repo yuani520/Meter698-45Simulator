@@ -57,7 +57,7 @@ def Analysis(code):
     re = check(code)
     if re == 0:
         try:
-            Rectrlc_1 = ctrlc_1(Comm.dec2bin(int(code[3], 16)))  # 控制码
+            ctrlc_1(Comm.dec2bin(int(code[3], 16)))  # 控制码
         except:
             return 1
         code_remain = code[4:]
@@ -99,7 +99,7 @@ def Analysis(code):
 
 
 def Information(num, detail, APDU):
-    global service_code, SecType
+    global service_code
     service_code = APDU[0]
     if num == '01':
         print(num, '预链接请求')
@@ -132,7 +132,6 @@ def Information(num, detail, APDU):
             ReturnMessage().reAPDUtype(num + detail + service_code)
             ReturnMessage().head()
             print('返回项数量', relen)
-
 
         elif detail == '03':
             print(detail, '读取一个记录型对象属性请求 (GetRequestRecord) ')
@@ -202,13 +201,14 @@ def Information(num, detail, APDU):
             seclen = int(APDU[0], 16)
             realAPDU = APDU[1:seclen + 1]
             left = APDU[seclen + 1:]
+            global SecType
             SecType = left[0]
             if SecType == '01':
                 global mac
                 if mac == 1:
                     pass
                 else:
-                    SecType == '00'
+                    SecType = '00'
 
                 Information(realAPDU[0], realAPDU[1], realAPDU[2:])
 
@@ -327,7 +327,6 @@ def RCSD(remain_len, args):
 def CSD_CHOICE(args):
     type = args[0]
     if type == '00':
-        # print('CSD:', type)
         OAD = str(args[1] + args[2])
         OAD_SEQUENCE(OAD, args[3], args[4])
         if args == []:
@@ -342,13 +341,16 @@ def CSD_CHOICE(args):
         print('ERRORS:CSD_CHOICE')
 
 
+def ROAD(args):
+    pass
+
+
 def OAD_SEQUENCE(OI, unsigned1, unsigned2):
     try:
         unsigned11 = Comm.dec2bin(int(unsigned1)).zfill(8)  # 特征值
         unsigned11 = int(unsigned11[0:4], 10)
-        print(OI, '特征:', unsigned11, '索引:', unsigned2)
         unsigned1 = '属性 ' + unsigned1[1]
-        print(unsigned1)
+        print(OI, unsigned1)
         value = str(OI).zfill(4) + unsigned1[-1].zfill(2) + str(unsigned2).zfill(2)
         ReturnMessage().sequence_of_len()
         global frozenSign
@@ -573,7 +575,6 @@ class ReturnMessage():
         if SA_num == 0:
             self.add = Comm.list2str(SA_num_len)
         elif SA_num == 1:
-            # print('adsadasd',Comm.makelist(self.Re_add())[::-1])
             self.add = '05' + Comm.list2str(Comm.makelist(self.Re_add())[::-1])
             print('add', self.add)
         self.CA = '00'
@@ -583,14 +584,17 @@ class ReturnMessage():
         self.total = self.ctrlzone + self.add + self.CA
         global LargeOAD, SecType
         print('完整的APDU ', LargeOAD)
+        print('SecType', SecType)
         if SecType == '01':
             sec_len = len(LargeOAD) // 2
             if sec_len > 127:
                 if sec_len < 255:
                     sec_len = '81' + hex(len(LargeOAD) // 2)[2:]
                 elif sec_len > 255 and sec_len < 65535:
-                    sec_len = '82' + hex(len(LargeOAD) // 2)[2:].zfill(4)[2:]+hex(len(LargeOAD) // 2)[2:].zfill(4)[0:2]
-            else:sec_len = hex(len(LargeOAD) // 2)[2:]
+                    sec_len = '82' + hex(len(LargeOAD) // 2)[2:].zfill(4)[2:] + hex(len(LargeOAD) // 2)[2:].zfill(4)[
+                                                                                0:2]
+            else:
+                sec_len = hex(len(LargeOAD) // 2)[2:]
             LargeOAD = '9000' + sec_len + LargeOAD + '0100040a0b0c0d'
             SecType == '00'
             print('完整的APDU加MAC ', LargeOAD)
@@ -712,7 +716,6 @@ class ReturnMessage():
         global OI
         OI = []
 
-    # TODO
     def composefrozen(self, OI):
         global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele, SA_num_len
         if frozenSign == 1 and OI[0] != '5':
@@ -750,12 +753,9 @@ class ReturnMessage():
                     pass
                 else:
                     print('未知数据标识{}'.format(OI))
-
             if newOI == '50020200_202a0200' or newOI == '50040200_202a0200':
                 text = [newOI, '目标服务器地址', '5507' + Comm.list2str(SA_num_len)]
-
             self.save(text)
-
             if auto_increase_500400100200 == 1 and newOI == '50040200_00100200':
                 SequenceOf_ARecordRow(analysis_increase(text[2]))
             elif auto_curve_sign == 1 and newOI == '50020200_20210200':
@@ -841,3 +841,4 @@ sele = 0
 _max = 3
 trans = ''
 SecType = '00'
+Difference = 0

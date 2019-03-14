@@ -287,8 +287,12 @@ class Connect(threading.Thread):
             sent = '发送:\n' + makestr(sent)
             MainWindow._signal_text.emit(message)
             MainWindow._signal_text.emit(sent)
-            times = time.strftime('%H:%M:%S')
-            MainWindow._signal_text.emit(times)
+            ct = time.time()
+            local_time = time.localtime(ct)
+            data_head = time.strftime("%H:%M:%S", local_time)
+            data_secs = (ct - int(ct)) * 1000
+            time_stamp = "%s.%3d" % (data_head, data_secs)
+            MainWindow._signal_text.emit(time_stamp)
             MainWindow._signal_text.emit('--------------------------------')
             LargeOAD = ''
             data_list = []
@@ -326,7 +330,7 @@ class Config(QDialog):
         self.ui.checkBox_3.setToolTip('00100200 随软件启动时间逐步递增')
         self.ui.checkBox_2.setToolTip('返回抄表报文内的时标')
         self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')
-        self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化')
+        self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化(Selector 09 无效)')
         self.ui.checkBox_5.setToolTip('明文回复附带MAC‘0A0B0C0D’')
 
     def get_max(self):

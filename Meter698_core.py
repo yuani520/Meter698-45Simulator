@@ -148,16 +148,27 @@ def Information(num, detail, APDU):
                 frozenSign = 3
             reCSD = RSD(APDU[5:])
             RCSD(reCSD[0], reCSD[1:])
-            print('LargeOAD', LargeOAD)
+            print('LargeOAD-1', LargeOAD)
             print('返回项数量', relen)
-            LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
             datatype = num + detail + service_code
             datatype = '8' + datatype[1:]
             datatype = datatype.replace(' ', '')
-            LargeOAD = datatype + LargeOAD + Comm.list_append(data_list) + '0000'
+            # todo
+            global from_to_sign
+            print('from_to_sign',from_to_sign)
+            if from_to_sign == 1:
+                LargeOAD = datatype + str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '01000000'
+            else:
+                LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
+                print('data_list', data_list)
+                LargeOAD = datatype + LargeOAD + Comm.list_append(data_list) + '0000'
+
             ReturnMessage().head()
             print('data_list', Comm.list_append(data_list))
             print('组成', LargeOAD)
+            from_to_sign = 0
+
+
 
         elif detail == '04':
             print(detail, '读取若干个记录型对象属性请求 (GetRequestRecordList) ')
@@ -464,6 +475,7 @@ def Data(DataDescribe, args):
         year = int(args[0] + args[1], 16)
         mouth = int(args[2], 16)
         day = int(args[3], 16)
+        global hour,minute
         hour = int(args[4], 16)
         minute = int(args[5], 16)
         second = int(args[6], 16)
@@ -741,7 +753,18 @@ class ReturnMessage():
             print('自动曲线时标')
             print('curve_newOI', newOI)
             self.save(['50020200_20210200', '自动曲线冻结', ''])
-            SequenceOf_ARecordRow(Daily_freeze)
+            global from_to,hour,minute
+            print('from_to',from_to)
+            if from_to == []:
+                SequenceOf_ARecordRow(Daily_freeze)
+            else:
+                no_timme = int(hour) * 60 + int(minute)
+                print('no_timme',no_timme)
+                if no_timme > from_to[0] and no_timme < from_to[1]:
+                    print('pass the times')
+                    global from_to_sign
+                    from_to_sign = 1
+            # todo
         else:
             try:
                 self.get = self.conf_new.get('MeterData', newOI)
@@ -822,6 +845,15 @@ def re_max():
     return _max
 
 
+def set_from_to(x):
+    global from_to
+    from_to = x
+
+def set_from_to_sign(x):
+    global from_to_sign,from_to
+    from_to_sign = x
+    from_to = []
+
 OI = []
 start_time = time.time()
 auto_day_frozon_sign = 1
@@ -841,3 +873,5 @@ _max = 3
 trans = ''
 SecType = '00'
 Difference = 0
+from_to = []
+from_to_sign = 0

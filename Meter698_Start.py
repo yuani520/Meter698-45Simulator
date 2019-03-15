@@ -1,5 +1,5 @@
 import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_core, time, UI_Meter698_config, \
-    configparser, os,Meter698_advance
+    configparser, os
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView, QFileDialog
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
@@ -148,8 +148,6 @@ class RuningTime(threading.Thread):
                 MainWindow.ui.label_5.setText('System running time: ' + str(b) + ' hour')
             else:
                 MainWindow.ui.label_5.setText('System running time: ' + str(a) + ' sec')
-
-
 
 
 class Connect(threading.Thread):
@@ -305,7 +303,6 @@ class Connect(threading.Thread):
 
 
 class Config(QDialog):
-    _signal_miss_point = pyqtSignal(int)
     def __init__(self):
         QDialog.__init__(self)
         self.ui = UI_Meter698_config.Ui_Dialog()
@@ -318,6 +315,7 @@ class Config(QDialog):
         self.ui.pushButton.clicked.connect(self.bw)
         self.ui.pushButton.clicked.connect(self.set_max)
         self.ui.pushButton.clicked.connect(self.set_mac)
+        self.ui.pushButton.clicked.connect(self.sent_from_to)
         self.ui.pushButton_3.clicked.connect(self.list_increas)
         self.ui.pushButton_4.clicked.connect(self.list_decreas)
         self.conf = configparser.ConfigParser()
@@ -333,19 +331,33 @@ class Config(QDialog):
         self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')
         self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化(Selector 09 无效)')
         self.ui.checkBox_5.setToolTip('明文回复附带MAC‘0A0B0C0D’')
-
+        self.ui.checkBox_6.clicked.connect(self.Curve_leak)
 
     def Curve_leak(self):
         if self.ui.checkBox_6.isChecked():
-            self.ui.label_4.isEnabled()
-            self.ui.label_5.isEnabled()
-            self.ui.timeEdit.isEnabled()
-            self.ui.timeEdit_2.isEnabled()
+            self.ui.label_4.setDisabled(0)
+            self.ui.label_5.setDisabled(0)
+            self.ui.timeEdit.setDisabled(0)
+            self.ui.timeEdit_2.setDisabled(0)
+
+            # todo
         else:
             self.ui.label_4.setDisabled(1)
             self.ui.label_5.setDisabled(1)
             self.ui.timeEdit.setDisabled(1)
             self.ui.timeEdit_2.setDisabled(1)
+            self.from_to = []
+            Meter698_core.set_from_to_sign(0)
+
+    def sent_from_to(self):
+        if self.ui.checkBox_6.isChecked():
+            from_ = self.ui.timeEdit_2.text().split(':')
+            from_ = int(from_[0]) * 60 + int(from_[1])
+            to_ = self.ui.timeEdit.text().split(':')
+            to_ = int(to_[0]) * 60 + int(to_[1])
+            self.from_to = [from_, to_]
+            print('self.from_to',self.from_to)
+            Meter698_core.set_from_to(self.from_to)
 
     def get_max(self):
         self.ui.lineEdit.setText(str(Meter698_core.re_max()))

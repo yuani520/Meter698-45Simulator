@@ -591,8 +591,7 @@ class ReturnMessage():
                 if sec_len < 255:
                     sec_len = '81' + hex(len(LargeOAD) // 2)[2:]
                 elif sec_len > 255 and sec_len < 65535:
-                    sec_len = '82' + hex(len(LargeOAD) // 2)[2:].zfill(4)[2:] + hex(len(LargeOAD) // 2)[2:].zfill(4)[
-                                                                                0:2]
+                    sec_len = '82' + hex(len(LargeOAD) // 2)[2:].zfill(4)
             else:
                 sec_len = hex(len(LargeOAD) // 2)[2:]
             LargeOAD = '9000' + sec_len + LargeOAD + '0100040a0b0c0d'

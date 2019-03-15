@@ -1,5 +1,5 @@
 import UI_Meter698, sys, serial, serial.tools.list_ports, threading, Meter698_core, time, UI_Meter698_config, \
-    configparser, os
+    configparser, os,Meter698_advance
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QDialog, QTableWidgetItem, QHeaderView, QFileDialog
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QIcon
@@ -148,6 +148,7 @@ class RuningTime(threading.Thread):
                 MainWindow.ui.label_5.setText('System running time: ' + str(b) + ' hour')
             else:
                 MainWindow.ui.label_5.setText('System running time: ' + str(a) + ' sec')
+
 
 
 
@@ -304,6 +305,7 @@ class Connect(threading.Thread):
 
 
 class Config(QDialog):
+    _signal_miss_point = pyqtSignal(int)
     def __init__(self):
         QDialog.__init__(self)
         self.ui = UI_Meter698_config.Ui_Dialog()
@@ -325,13 +327,25 @@ class Config(QDialog):
         self.get_max()
         self.setWindowIcon(QIcon('source/taxi.ico'))
         self.setFixedSize(self.width(), self.height())
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
         self.ui.checkBox_3.setToolTip('00100200 随软件启动时间逐步递增')
         self.ui.checkBox_2.setToolTip('返回抄表报文内的时标')
         self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')
         self.ui.checkBox_4.setToolTip('日冻结数据随日冻结时标距离当前系统日期的差值进行变化(Selector 09 无效)')
         self.ui.checkBox_5.setToolTip('明文回复附带MAC‘0A0B0C0D’')
+
+
+    def Curve_leak(self):
+        if self.ui.checkBox_6.isChecked():
+            self.ui.label_4.isEnabled()
+            self.ui.label_5.isEnabled()
+            self.ui.timeEdit.isEnabled()
+            self.ui.timeEdit_2.isEnabled()
+        else:
+            self.ui.label_4.setDisabled(1)
+            self.ui.label_5.setDisabled(1)
+            self.ui.timeEdit.setDisabled(1)
+            self.ui.timeEdit_2.setDisabled(1)
 
     def get_max(self):
         self.ui.lineEdit.setText(str(Meter698_core.re_max()))

@@ -113,7 +113,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "模拟表程序V1.1"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "模拟表程序V1.2"))
         self.pushButton.setText(_translate("MainWindow", "启动"))
         self.radioButton_2.setText(_translate("MainWindow", "698规约"))
         self.radioButton.setText(_translate("MainWindow", "645规约"))

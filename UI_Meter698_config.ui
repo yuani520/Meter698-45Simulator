@@ -348,7 +348,7 @@
       <rect>
        <x>0</x>
        <y>270</y>
-       <width>239</width>
+       <width>111</width>
        <height>31</height>
       </rect>
      </property>
@@ -584,7 +584,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Time_update：190314</string>
+       <string>Frame：190315</string>
       </property>
      </widget>
     </widget>

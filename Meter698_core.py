@@ -2,7 +2,7 @@ import Comm, time, traceback, configparser, random
 
 
 def check(code):
-    if len(code) < 15 or len(code) > 200:
+    if len(code) < 20 or len(code) > 200:
         return 1
     lenth = int(code[2] + code[1], 16)  # 长度
     if len(code) >= lenth + 2:
@@ -153,7 +153,6 @@ def Information(num, detail, APDU):
             datatype = num + detail + service_code
             datatype = '8' + datatype[1:]
             datatype = datatype.replace(' ', '')
-            # todo
             global from_to_sign
             print('from_to_sign',from_to_sign)
             if from_to_sign == 1:
@@ -327,7 +326,7 @@ def RSD(remain):
 
 
 def RCSD(remain_len, args):
-    lens = int(remain_len)
+    lens = int(remain_len,16)
     print('lens', lens)
     while lens > 0:
         args = CSD_CHOICE(args)
@@ -764,7 +763,6 @@ class ReturnMessage():
                     print('pass the times')
                     global from_to_sign
                     from_to_sign = 1
-            # todo
         else:
             try:
                 self.get = self.conf_new.get('MeterData', newOI)

@@ -151,7 +151,7 @@ class Ui_Dialog(object):
         self.tableWidget.horizontalHeader().setMinimumSectionSize(110)
         self.tableWidget.verticalHeader().setVisible(False)
         self.layoutWidget2 = QtWidgets.QWidget(self.tab_2)
-        self.layoutWidget2.setGeometry(QtCore.QRect(0, 270, 239, 31))
+        self.layoutWidget2.setGeometry(QtCore.QRect(0, 270, 111, 31))
         self.layoutWidget2.setObjectName("layoutWidget2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget2)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
@@ -235,7 +235,7 @@ class Ui_Dialog(object):
         self.horizontalLayout.addWidget(self.pushButton_2)
 
         self.retranslateUi(Dialog)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         self.pushButton_2.clicked.connect(Dialog.close)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
@@ -275,7 +275,7 @@ class Ui_Dialog(object):
         self.pushButton_5.setText(_translate("Dialog", "txt格式"))
         self.groupBox_3.setTitle(_translate("Dialog", "About："))
         self.label_2.setText(_translate("Dialog", "Version：V1.2"))
-        self.label_3.setText(_translate("Dialog", "Time_update：190314"))
+        self.label_3.setText(_translate("Dialog", "Frame：190315"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Dialog", "其它"))
         self.pushButton.setText(_translate("Dialog", "Save"))
         self.pushButton_2.setText(_translate("Dialog", "Cancel"))

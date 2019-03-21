@@ -16,6 +16,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = UI_Meter698.Ui_MainWindow()
         self.ui.setupUi(self)
+        self.setWindowTitle('模拟表程序V1.21')
         self.addItem = self.GetSerialNumber()
         while 1:
             if self.addItem == None:
@@ -55,8 +56,8 @@ class MainWindow(QMainWindow):
     def load_ini(self):
         self.conf = configparser.ConfigParser()
         try:
-            if os.path.exists('config.ini'):
-                self.conf.read('config.ini', encoding='utf-8')
+            if os.path.exists('C:\\Program Files\\config.ini'):
+                self.conf.read('C:\\Program Files\\config.ini', encoding='utf-8')
                 if self.conf.has_section('MeterData') is True:
                     self._init_time_sign()
                 else:
@@ -67,7 +68,7 @@ class MainWindow(QMainWindow):
             print_exc(file=open('bug.txt', 'a+'))
 
     def ini(self):
-        ini = open('config.ini', 'w', encoding='utf-8')
+        ini = open('C:\\Program Files\\config.ini', 'w', encoding='utf-8')
         self.conf.add_section('MeterData')
         data = open('source\\698data', 'r', encoding='utf-8')
         while 1:
@@ -80,7 +81,7 @@ class MainWindow(QMainWindow):
         self.conf.write(ini)
 
     def _init_time_sign(self):
-        ini = open('config.ini', 'w', encoding='utf-8')
+        ini = open('C:\\Program Files\\config.ini', 'w', encoding='utf-8')
         times = time.strftime('%Y%m%d%H%M%S')
         year = hex(int(times[0:4], 10))[2:].zfill(4)
         mouth = hex(int(times[4:6], 10))[2:].zfill(2)
@@ -215,7 +216,7 @@ class Connect(threading.Thread):
                     data = data + str(b2a_hex(self.serial.read(num)))[2:-1]
                     try:
                         if data != '':
-                            if data[0] == '6' and data[1] == '8':
+                            if data[0] == '6' and data[1] == '8' and len(data) > 20:
                                 if data[-1] == '6' and data[-2] == '1':
                                     print('Received: ', data)
                                     Received_data = '收到:\n' + makestr(data)
@@ -240,7 +241,7 @@ class Connect(threading.Thread):
                                 try:
                                     while 1:
                                         print('data:', data)
-                                        if data[-1] == '6' and data[-2] == '1':
+                                        if data[-1] == '6' and data[-2] == '1'and len(data)>20:
                                             if data[0] == '6' and data[1] == '8':
                                                 print('完整报文:', data)
                                                 break
@@ -249,8 +250,7 @@ class Connect(threading.Thread):
                                                 continue
                                         if data[0] == '6' and data[1] == '8':
                                             if Meter698_core.check(makelist(data)) == 0:
-                                                data = data + '16'
-                                                print('有效报文')
+                                                print('找出有效报文',data)
                                                 break
                                             else:
                                                 print('不完整报文!继续接收:', data)
@@ -263,7 +263,7 @@ class Connect(threading.Thread):
                                         break
                                 except:
                                     pass
-                                continue
+                            continue
                         else:
                             continue
                     except:
@@ -339,8 +339,6 @@ class Config(QDialog):
             self.ui.label_5.setDisabled(0)
             self.ui.timeEdit.setDisabled(0)
             self.ui.timeEdit_2.setDisabled(0)
-
-            # todo
         else:
             self.ui.label_4.setDisabled(1)
             self.ui.label_5.setDisabled(1)
@@ -356,7 +354,7 @@ class Config(QDialog):
             to_ = self.ui.timeEdit.text().split(':')
             to_ = int(to_[0]) * 60 + int(to_[1])
             self.from_to = [from_, to_]
-            print('self.from_to',self.from_to)
+            print('self.from_to', self.from_to)
             Meter698_core.set_from_to(self.from_to)
 
     def get_max(self):
@@ -459,7 +457,7 @@ class Config(QDialog):
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.conf.read('config.ini', encoding='utf-8')
+        self.conf.read('C:\\Program Files\\config.ini', encoding='utf-8')
         x = 0  # 行
         text = self.conf.items('MeterData')
         for items in text:
@@ -485,7 +483,7 @@ class Config(QDialog):
                 text_1 = text_1
                 self.conf.set('MeterData', text_0, text_1)
                 x -= 1
-            self.conf.write(open('config.ini', 'w', encoding='utf-8'))
+            self.conf.write(open('C:\\Program Files\\config.ini', 'w', encoding='utf-8'))
         except:
             print_exc(file=open('bug.txt', 'a+'))
 

@@ -56,8 +56,8 @@ class MainWindow(QMainWindow):
     def load_ini(self):
         self.conf = configparser.ConfigParser()
         try:
-            if os.path.exists('C:\\Program Files\\config.ini'):
-                self.conf.read('C:\\Program Files\\config.ini', encoding='utf-8')
+            if os.path.exists('config.ini'):
+                self.conf.read('config.ini', encoding='utf-8')
                 if self.conf.has_section('MeterData') is True:
                     self._init_time_sign()
                 else:
@@ -68,7 +68,7 @@ class MainWindow(QMainWindow):
             print_exc(file=open('bug.txt', 'a+'))
 
     def ini(self):
-        ini = open('C:\\Program Files\\config.ini', 'w', encoding='utf-8')
+        ini = open('config.ini', 'w', encoding='utf-8')
         self.conf.add_section('MeterData')
         data = open('source\\698data', 'r', encoding='utf-8')
         while 1:
@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
         self.conf.write(ini)
 
     def _init_time_sign(self):
-        ini = open('C:\\Program Files\\config.ini', 'w', encoding='utf-8')
+        ini = open('config.ini', 'w', encoding='utf-8')
         times = time.strftime('%Y%m%d%H%M%S')
         year = hex(int(times[0:4], 10))[2:].zfill(4)
         mouth = hex(int(times[4:6], 10))[2:].zfill(2)
@@ -339,6 +339,7 @@ class Config(QDialog):
             self.ui.label_5.setDisabled(0)
             self.ui.timeEdit.setDisabled(0)
             self.ui.timeEdit_2.setDisabled(0)
+            Meter698_core.set_from_to_sign(1)
         else:
             self.ui.label_4.setDisabled(1)
             self.ui.label_5.setDisabled(1)
@@ -355,6 +356,9 @@ class Config(QDialog):
             to_ = int(to_[0]) * 60 + int(to_[1])
             self.from_to = [from_, to_]
             print('self.from_to', self.from_to)
+            Meter698_core.set_from_to(self.from_to)
+        else:
+            self.from_to = []
             Meter698_core.set_from_to(self.from_to)
 
     def get_max(self):
@@ -457,7 +461,7 @@ class Config(QDialog):
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
         self.ui.tableWidget.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
-        self.conf.read('C:\\Program Files\\config.ini', encoding='utf-8')
+        self.conf.read('config.ini', encoding='utf-8')
         x = 0  # 行
         text = self.conf.items('MeterData')
         for items in text:
@@ -483,7 +487,7 @@ class Config(QDialog):
                 text_1 = text_1
                 self.conf.set('MeterData', text_0, text_1)
                 x -= 1
-            self.conf.write(open('C:\\Program Files\\config.ini', 'w', encoding='utf-8'))
+            self.conf.write(open('config.ini', 'w', encoding='utf-8'))
         except:
             print_exc(file=open('bug.txt', 'a+'))
 

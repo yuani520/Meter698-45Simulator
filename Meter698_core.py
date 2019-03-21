@@ -153,10 +153,20 @@ def Information(num, detail, APDU):
             datatype = num + detail + service_code
             datatype = '8' + datatype[1:]
             datatype = datatype.replace(' ', '')
-            global from_to_sign
-            print('from_to_sign',from_to_sign)
+            global from_to_sign,from_to, hour_, minute_
+            print('from_to_sign', from_to_sign)
             if from_to_sign == 1:
-                LargeOAD = datatype + str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '01000000'
+                print('from_to', from_to)
+                no_timme = int(hour_) * 60 + int(minute_)
+                print('no_timme', no_timme)
+                if no_timme > from_to[0] and no_timme < from_to[1]:
+                    print('pass the times')
+                    LargeOAD = datatype + str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '01000000'
+                else:
+                    LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
+                    print('data_list', data_list)
+                    LargeOAD = datatype + LargeOAD + Comm.list_append(data_list) + '0000'
+
             else:
                 LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
                 print('data_list', data_list)
@@ -165,7 +175,7 @@ def Information(num, detail, APDU):
             ReturnMessage().head()
             print('data_list', Comm.list_append(data_list))
             print('组成', LargeOAD)
-            from_to_sign = 0
+
 
 
 
@@ -326,7 +336,7 @@ def RSD(remain):
 
 
 def RCSD(remain_len, args):
-    lens = int(remain_len,16)
+    lens = int(remain_len, 16)
     print('lens', lens)
     while lens > 0:
         args = CSD_CHOICE(args)
@@ -373,165 +383,169 @@ def OAD_SEQUENCE(OI, unsigned1, unsigned2):
 
 
 def Data(DataDescribe, args):
-    DataDescribe = str(int(DataDescribe, 16)).zfill(2)
-    if DataDescribe == '00':
-        print('NULL', DataDescribe)
-        return args
+    try:
+        DataDescribe = str(int(DataDescribe, 16)).zfill(2)
+        if DataDescribe == '00':
+            print('NULL', DataDescribe)
+            return args
 
-    elif DataDescribe == '01':
-        print('array:', DataDescribe, end=' ')
-        len1 = int(args[0], 16)
-        lenori = len1
-        args = args[1:]
-        while len1 > 0:
-            args = Data(args[0], args[1:])
-            len1 -= 1
-            print('Data', args)
-        return args
-    elif DataDescribe == '02':
-        print('structure: ', DataDescribe)
-        len2 = int(args[0], 16)
-        lenori = len2
-        args = args[1:]
-        print('len:', len2)
-        while len2 > 0:
-            args = Data(args[0], args[1:])
-            len2 -= 1
-            print('Data', args)
+        elif DataDescribe == '01':
+            print('array:', DataDescribe, end=' ')
+            len1 = int(args[0], 16)
+            lenori = len1
+            args = args[1:]
+            while len1 > 0:
+                args = Data(args[0], args[1:])
+                len1 -= 1
+                print('Data', args)
+            return args
+        elif DataDescribe == '02':
+            print('structure: ', DataDescribe)
+            len2 = int(args[0], 16)
+            lenori = len2
+            args = args[1:]
+            print('len:', len2)
+            while len2 > 0:
+                args = Data(args[0], args[1:])
+                len2 -= 1
+                print('Data', args)
 
-        return args
-    elif DataDescribe == '03':
-        print('bool:', DataDescribe)
-    elif DataDescribe == '04':
-        print('bit-string:', DataDescribe)
-        value = Comm.list2str(args[1:3])
-        print('value', Comm.list2str(value))
-        return args[3:]
-    elif DataDescribe == '05':
-        print('double-long: ', DataDescribe)
-        value = int(args[0] + args[1] + args[2] + args[3], 16)
-        if value > 2147483647:
-            value = Comm.Inverse_code(bin(value))
-            value = int(value, 2) + 1
-            value = -value
-        print('value', value)
-        return args[4:]
-    elif DataDescribe == '06':  # 4byte
-        print('double-long-unsigned: ', DataDescribe)
-        value = int(args[0] + args[1] + args[2] + args[3], 16)
-        if value > 2147483647:
-            value = Comm.Inverse_code(bin(value))
-            value = int(value, 2) + 1
-            value = -value
-        print('value', value)
-        return args[4:]
-    elif DataDescribe == '09':
-        print('octet-string: ', DataDescribe)
-    elif DataDescribe == '10':
-        print('visible-string: ', DataDescribe)
-    elif DataDescribe == '12':
-        print('UTF8-string:', DataDescribe)
-    elif DataDescribe == '15':
-        print('integer:', DataDescribe)
-    elif DataDescribe == '16':
-        print('long: ', DataDescribe)
-        value = int(args[0] + args[1], 16)
-        if value > 32767:
-            value = Comm.Inverse_code(bin(value))
-            value = int(value, 2) + 1
-            value = -value
-        print('value', value)
-        return args[2:]
-    elif DataDescribe == '17':
-        print('unsigned:', DataDescribe)
-    elif DataDescribe == '18':
-        print('long-unsigned:', DataDescribe)
-        value = int(args[0] + args[1], 16)
-        if value > 32767:
-            value = Comm.Inverse_code(bin(value))
-            value = int(value, 2) + 1
-            value = -value
-        print('value', value)
-        return args[2:]
-    elif DataDescribe == '20':
-        print('long64: ', DataDescribe)
-    elif DataDescribe == '21':
-        print('long64-unsigned', DataDescribe)
-    elif DataDescribe == '22':
-        print('enum', DataDescribe)
-    elif DataDescribe == '23':
-        print('float32', DataDescribe)
-    elif DataDescribe == '24':
-        print('float64', DataDescribe)
-    elif DataDescribe == '25':
-        print('date_time', DataDescribe)
-    elif DataDescribe == '26':
-        print('date', DataDescribe)
-    elif DataDescribe == '27':
-        print('time', DataDescribe)
-    elif DataDescribe == '28':
-        print('DataDescribe:', DataDescribe, 'date_time_s', end=' ')
-        year = int(args[0] + args[1], 16)
-        mouth = int(args[2], 16)
-        day = int(args[3], 16)
-        global hour,minute
-        hour = int(args[4], 16)
-        minute = int(args[5], 16)
-        second = int(args[6], 16)
-        datatime = str(year) + '年' + str(mouth) + '月' + str(day) + '日' + '   ' + str(hour).zfill(2) + ':' + str(
-            minute).zfill(2) + ':' + str(
-            second).zfill(2)
-        print(datatime)
-        global Daily_freeze
-        Daily_freeze = '1c' + Comm.list2str(args[0:7])  # 冻结返回时间
-        print('Daily_freeze', Daily_freeze)
-        global Difference
-        Difference = abs(int(time.strftime('%m%d'), 10) - (mouth * 100 + day))
+            return args
+        elif DataDescribe == '03':
+            print('bool:', DataDescribe)
+        elif DataDescribe == '04':
+            print('bit-string:', DataDescribe)
+            value = Comm.list2str(args[1:3])
+            print('value', Comm.list2str(value))
+            return args[3:]
+        elif DataDescribe == '05':
+            print('double-long: ', DataDescribe)
+            value = int(args[0] + args[1] + args[2] + args[3], 16)
+            if value > 2147483647:
+                value = Comm.Inverse_code(bin(value))
+                value = int(value, 2) + 1
+                value = -value
+            print('value', value)
+            return args[4:]
+        elif DataDescribe == '06':  # 4byte
+            print('double-long-unsigned: ', DataDescribe)
+            value = int(args[0] + args[1] + args[2] + args[3], 16)
+            if value > 2147483647:
+                value = Comm.Inverse_code(bin(value))
+                value = int(value, 2) + 1
+                value = -value
+            print('value', value)
+            return args[4:]
+        elif DataDescribe == '09':
+            print('octet-string: ', DataDescribe)
+        elif DataDescribe == '10':
+            print('visible-string: ', DataDescribe)
+        elif DataDescribe == '12':
+            print('UTF8-string:', DataDescribe)
+        elif DataDescribe == '15':
+            print('integer:', DataDescribe)
+        elif DataDescribe == '16':
+            print('long: ', DataDescribe)
+            value = int(args[0] + args[1], 16)
+            if value > 32767:
+                value = Comm.Inverse_code(bin(value))
+                value = int(value, 2) + 1
+                value = -value
+            print('value', value)
+            return args[2:]
+        elif DataDescribe == '17':
+            print('unsigned:', DataDescribe)
+        elif DataDescribe == '18':
+            print('long-unsigned:', DataDescribe)
+            value = int(args[0] + args[1], 16)
+            if value > 32767:
+                value = Comm.Inverse_code(bin(value))
+                value = int(value, 2) + 1
+                value = -value
+            print('value', value)
+            return args[2:]
+        elif DataDescribe == '20':
+            print('long64: ', DataDescribe)
+        elif DataDescribe == '21':
+            print('long64-unsigned', DataDescribe)
+        elif DataDescribe == '22':
+            print('enum', DataDescribe)
+        elif DataDescribe == '23':
+            print('float32', DataDescribe)
+        elif DataDescribe == '24':
+            print('float64', DataDescribe)
+        elif DataDescribe == '25':
+            print('date_time', DataDescribe)
+        elif DataDescribe == '26':
+            print('date', DataDescribe)
+        elif DataDescribe == '27':
+            print('time', DataDescribe)
+        elif DataDescribe == '28':
+            print('DataDescribe:', DataDescribe, 'date_time_s', end=' ')
+            year = int(args[0] + args[1], 16)
+            mouth = int(args[2], 16)
+            day = int(args[3], 16)
+            global hour,hour_, minute,minute_
+            hour = int(args[4], 16)
+            hour_ = hour
+            minute = int(args[5], 16)
+            minute_ = minute
+            second = int(args[6], 16)
+            datatime = str(year) + '年' + str(mouth) + '月' + str(day) + '日' + '   ' + str(hour).zfill(2) + ':' + str(
+                minute).zfill(2) + ':' + str(
+                second).zfill(2)
+            print(datatime)
+            global Daily_freeze
+            Daily_freeze = '1c' + Comm.list2str(args[0:7])  # 冻结返回时间
+            print('Daily_freeze', Daily_freeze)
+            global Difference
+            Difference = abs(int(time.strftime('%m%d'), 10) - (mouth * 100 + day))
 
-        return args[7:]
-    elif DataDescribe == '80':
-        print('OAD ', DataDescribe)
-    elif DataDescribe == '82':
-        print('ROAD ', DataDescribe)
-    elif DataDescribe == '83':
-        print('OMD ', DataDescribe)
-    elif DataDescribe == '84':
-        print('TI', DataDescribe)
-        timeUnit = int(args[0], 16)
-        times = int(args[1] + args[2], 16)
-        if timeUnit == 1:
-            print(times, '分钟')
-        return args[3:]
-    elif DataDescribe == '85':
-        print('TSA', DataDescribe)
-        value = args[0:8]
-        print('TSA', value)
-        return args[8:]
-    elif DataDescribe == '86':
-        print('MAC', DataDescribe)
-    elif DataDescribe == '87':
-        print('RN', DataDescribe)
-    elif DataDescribe == '88':
-        print('Region', DataDescribe)
-    elif DataDescribe == '89':
-        print('Scaler_Unit ', DataDescribe)
-    elif DataDescribe == '90':
-        print('RSD', DataDescribe)
-    elif DataDescribe == '91':
-        print('CSD', DataDescribe)
-    elif DataDescribe == '92':
-        print('MS', DataDescribe)
-    elif DataDescribe == '93':
-        print('SID', DataDescribe)
-    elif DataDescribe == '94':
-        print('SID_MAC', DataDescribe)
-    elif DataDescribe == '95':
-        print('COMDCB', DataDescribe)
-    elif DataDescribe == '96':
-        print('RCSD', DataDescribe)
-    else:
-        print('ERROR on Data')
-
+            return args[7:]
+        elif DataDescribe == '80':
+            print('OAD ', DataDescribe)
+        elif DataDescribe == '82':
+            print('ROAD ', DataDescribe)
+        elif DataDescribe == '83':
+            print('OMD ', DataDescribe)
+        elif DataDescribe == '84':
+            print('TI', DataDescribe)
+            timeUnit = int(args[0], 16)
+            times = int(args[1] + args[2], 16)
+            if timeUnit == 1:
+                print(times, '分钟')
+            return args[3:]
+        elif DataDescribe == '85':
+            print('TSA', DataDescribe)
+            value = args[0:8]
+            print('TSA', value)
+            return args[8:]
+        elif DataDescribe == '86':
+            print('MAC', DataDescribe)
+        elif DataDescribe == '87':
+            print('RN', DataDescribe)
+        elif DataDescribe == '88':
+            print('Region', DataDescribe)
+        elif DataDescribe == '89':
+            print('Scaler_Unit ', DataDescribe)
+        elif DataDescribe == '90':
+            print('RSD', DataDescribe)
+        elif DataDescribe == '91':
+            print('CSD', DataDescribe)
+        elif DataDescribe == '92':
+            print('MS', DataDescribe)
+        elif DataDescribe == '93':
+            print('SID', DataDescribe)
+        elif DataDescribe == '94':
+            print('SID_MAC', DataDescribe)
+        elif DataDescribe == '95':
+            print('COMDCB', DataDescribe)
+        elif DataDescribe == '96':
+            print('RCSD', DataDescribe)
+        else:
+            print('ERROR on Data')
+    except:
+        traceback.print_exc(file=open('bug.txt', 'a+'))
 
 def SASign(num):
     global SA_num
@@ -657,6 +671,8 @@ class ReturnMessage():
             text = [OI, self.get[0], self.get[1]]
         except:
             print('未知数据标识{}'.format(OI))
+            traceback.print_exc(file=open('bug.txt', 'a+'))
+
         if OI == '40010200' or OI == '40020200' or OI == '202a0200':
             st = ['202a0200/40010200/40020200', '目标服务器地址/通信地址/表号', '']
             self.save(st)
@@ -752,17 +768,7 @@ class ReturnMessage():
             print('自动曲线时标')
             print('curve_newOI', newOI)
             self.save(['50020200_20210200', '自动曲线冻结', ''])
-            global from_to,hour,minute
-            print('from_to',from_to)
-            if from_to == []:
-                SequenceOf_ARecordRow(Daily_freeze)
-            else:
-                no_timme = int(hour) * 60 + int(minute)
-                print('no_timme',no_timme)
-                if no_timme > from_to[0] and no_timme < from_to[1]:
-                    print('pass the times')
-                    global from_to_sign
-                    from_to_sign = 1
+            SequenceOf_ARecordRow(Daily_freeze)
         else:
             try:
                 self.get = self.conf_new.get('MeterData', newOI)
@@ -784,7 +790,15 @@ class ReturnMessage():
             elif (auto_day_frozon_sign == 1 and newOI == '50040200_20210200') or (
                     auto_day_frozon_sign == 1 and newOI == '50060200_20210200'):
                 if sele == 9:
-                    SequenceOf_ARecordRow(text[2])
+                    text__ = time.strftime('%Y%m%d%H%M%S')
+                    year = hex(int(text__[0:4], 10))[2:].zfill(4)
+                    mouth = hex(int(text__[4:6], 10))[2:].zfill(2)
+                    day = hex(int(text__[6:8], 10))[2:].zfill(2)
+                    hour = hex(int(text__[8:10], 10))[2:].zfill(2)
+                    min = hex(int(text__[10:12], 10))[2:].zfill(2)
+                    sec = hex(int(text__[12:], 10))[2:].zfill(2)
+                    times = '1c' + year + mouth + day + hour + min + sec
+                    SequenceOf_ARecordRow(times)
             else:
                 SequenceOf_ARecordRow(text[2])
         global LargeOAD
@@ -847,10 +861,12 @@ def set_from_to(x):
     global from_to
     from_to = x
 
+
 def set_from_to_sign(x):
-    global from_to_sign,from_to
+    global from_to_sign, from_to
     from_to_sign = x
     from_to = []
+
 
 OI = []
 start_time = time.time()
@@ -873,3 +889,5 @@ SecType = '00'
 Difference = 0
 from_to = []
 from_to_sign = 0
+hour_ = 0
+minute_ = 0

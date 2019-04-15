@@ -38,11 +38,16 @@ class MainWindow(QMainWindow):
         self.ui.pushButton.clicked.connect(self.serial_prepare)
         self._signal_text.connect(self.Warming_message)
         self.config = Config()
-        self.ui.toolButton.clicked.connect(self.config.show)
+        self.ui.toolButton.clicked.connect(self.showd)
         self.__switch.connect(self.Show_Hidden)
         self.setWindowIcon(QIcon('source/taxi.ico'))
         self.ui.pushButton_2.setToolTip('清空当前窗口记录')
         self.ui.toolButton.setToolTip('设置')
+
+
+    def showd(self):
+        self.config.setWindowModality(Qt.ApplicationModal)
+        self.config.exec()
 
     def showtime(self):
         self.ui.label_5.setText()
@@ -59,7 +64,7 @@ class MainWindow(QMainWindow):
             if os.path.exists('config.ini'):
                 self.conf.read('config.ini', encoding='utf-8')
                 if self.conf.has_section('MeterData') is True:
-                    self._init_time_sign()
+                    pass
                 else:
                     self.ini()
             else:
@@ -77,18 +82,9 @@ class MainWindow(QMainWindow):
                 break
             text = text.split(' ')
             self.conf.set('MeterData', text[0], text[1] + ' ' + text[2][:-1])
-        self._init_time_sign()
         self.conf.write(ini)
 
-    def _init_time_sign(self):
-        ini = open('config.ini', 'w', encoding='utf-8')
-        times = time.strftime('%Y%m%d%H%M%S')
-        year = hex(int(times[0:4], 10))[2:].zfill(4)
-        mouth = hex(int(times[4:6], 10))[2:].zfill(2)
-        day = hex(int(times[6:8], 10))[2:].zfill(2)
-        times = '1c' + year + mouth + day + '000000'
-        self.conf.set('MeterData', '50040200_20210200', '上一次日冻结时间' + ' ' + times)
-        self.conf.write(ini)
+
 
     def serial_prepare(self):
         try:
@@ -325,7 +321,8 @@ class Config(QDialog):
         self.get_max()
         self.setWindowIcon(QIcon('source/taxi.ico'))
         self.setFixedSize(self.width(), self.height())
-        self.setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint and Qt.MSWindowsFixedSizeDialogHint)
+
         self.ui.checkBox_3.setToolTip('00100200 随软件启动时间逐步递增')
         self.ui.checkBox_2.setToolTip('返回抄表报文内的时标')
         self.ui.checkBox.setToolTip('返回抄表报文内的时标,若抄表报文无时标则返回当前系统日期')

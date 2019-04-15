@@ -703,16 +703,16 @@ class ReturnMessage():
             if text[0] == '00100200' and auto_increase == 1:
                 global start_time
                 stop_time = int(time.time() - start_time)
-                OI_A = str(int(text[2][6:14]) + stop_time + 5).zfill(8)
-                OI_B = str(int(text[2][16:24]) + stop_time + 4).zfill(8)
-                OI_C = str(int(text[2][26:34]) + stop_time + 3).zfill(8)
-                OI_D = str(int(text[2][36:44]) + stop_time + 2).zfill(8)
-                OI_E = str(int(text[2][46:54]) + stop_time + 1).zfill(8)
+                OI_B = str(int(text[2][16:24],16) + stop_time + 4).zfill(8)
+                OI_C = str(int(text[2][26:34],16) + stop_time + 3).zfill(8)
+                OI_D = str(int(text[2][36:44],16) + stop_time + 2).zfill(8)
+                OI_E = str(int(text[2][46:54],16) + stop_time + 1).zfill(8)
+                OI_A = str(int(text[2][6:14],16) + stop_time * 2 + 10).zfill(8)
                 print('start time:', start_time, 'stop time:', stop_time)
                 print('正向有功递增数值', OI_A)
                 text[2] = '010506' + OI_A + '06' + OI_B + '06' + OI_C + '06' + OI_D + '06' + OI_E
             self.message = text[0] + '01' + text[2]
-            print('message', self.message)
+            print('message', self.message,'text[2]', text[2])
             LargeOAD = LargeOAD + self.message
         else:
             print('compose_data ERROR')
@@ -794,10 +794,7 @@ class ReturnMessage():
                     year = hex(int(text__[0:4], 10))[2:].zfill(4)
                     mouth = hex(int(text__[4:6], 10))[2:].zfill(2)
                     day = hex(int(text__[6:8], 10))[2:].zfill(2)
-                    hour = hex(int(text__[8:10], 10))[2:].zfill(2)
-                    min = hex(int(text__[10:12], 10))[2:].zfill(2)
-                    sec = hex(int(text__[12:], 10))[2:].zfill(2)
-                    times = '1c' + year + mouth + day + hour + min + sec
+                    times = '1c' + year + mouth + day + '00' + '00' + '00'
                     SequenceOf_ARecordRow(times)
             else:
                 SequenceOf_ARecordRow(text[2])

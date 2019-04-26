@@ -137,10 +137,10 @@ class RuningTime(threading.Thread):
             time.sleep(1)
             self.end = time.time()
             a = int(self.end - self.start)
-            if a > 60:
+            if 3600> a > 60:
                 b = a // 60
                 MainWindow.ui.label_5.setText('System running time: ' + str(b) + ' min')
-            elif a > 3600:
+            elif a >= 3600:
                 b = a // 3600
                 MainWindow.ui.label_5.setText('System running time: ' + str(b) + ' hour')
             else:
@@ -161,6 +161,7 @@ class Connect(threading.Thread):
             print('关闭')
             MainWindow.Show_Hidden('0')
             self.__runflag.clear()
+
         else:
             MainWindow.ui.pushButton.setText('关闭')
             print('启动')
@@ -196,6 +197,7 @@ class Connect(threading.Thread):
         self.serial.parity = MainWindow.ui.comboBox_3.currentText()
         self.serial.stopbits = int(MainWindow.ui.comboBox_4.currentText())
         self.serial.timeout = 1
+        print('asd',self.serial.is_open)
         if self.serial.isOpen() is True:
             print('close')
             self.serial.close()
@@ -208,6 +210,8 @@ class Connect(threading.Thread):
                 data = ''
                 while self.__runflag.isSet():
                     time.sleep(0.1)
+                    if self.serial.isOpen is False:
+                        break
                     num = self.serial.inWaiting()
                     data = data + str(b2a_hex(self.serial.read(num)))[2:-1]
                     try:

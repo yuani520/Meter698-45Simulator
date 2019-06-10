@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = UI_Meter698.Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('模拟表程序V1.21')
+        self.setWindowTitle('模拟表程序V1.22')
         self.addItem = self.GetSerialNumber()
         while 1:
             if self.addItem == None:
@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton_2.setToolTip('清空当前窗口记录')
         self.ui.toolButton.setToolTip('设置')
 
-
+ 
     def showd(self):
         self.config.setWindowModality(Qt.ApplicationModal)
         self.config.exec()
@@ -197,7 +197,7 @@ class Connect(threading.Thread):
         self.serial.parity = MainWindow.ui.comboBox_3.currentText()
         self.serial.stopbits = int(MainWindow.ui.comboBox_4.currentText())
         self.serial.timeout = 1
-        print('asd',self.serial.is_open)
+
         if self.serial.isOpen() is True:
             print('close')
             self.serial.close()
@@ -281,7 +281,7 @@ class Connect(threading.Thread):
             self.serial.write(a2b_hex(sent))
             self.Meter.ReturnMessage()
             content = self.Meter.ReturnMessage().transport()
-            print('content:', content)
+            # print('content:', content)
             message = '数据标识:' + get_list_sum(content)
             sent = '发送:\n' + makestr(sent)
             MainWindow._signal_text.emit(message)

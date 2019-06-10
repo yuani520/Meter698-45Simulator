@@ -138,6 +138,7 @@ def Information(num, detail, APDU):
             returnvalue = A_ResultRecord_SEQUENCE(APDU[1:5])
             global frozenSign, data_list
             if returnvalue == 0:
+                print('抄时间')
                 Event(APDU[1:])
                 return 0
             if returnvalue == '5002':
@@ -148,12 +149,12 @@ def Information(num, detail, APDU):
                 frozenSign = 3
             reCSD = RSD(APDU[5:])
             RCSD(reCSD[0], reCSD[1:])
-            print('LargeOAD-1', LargeOAD)
-            print('返回项数量', relen)
+            # print('LargeOAD-1', LargeOAD)
+            # print('返回项数量', relen)
             datatype = num + detail + service_code
             datatype = '8' + datatype[1:]
             datatype = datatype.replace(' ', '')
-            global from_to_sign,from_to, hour_, minute_
+            global from_to_sign, from_to, hour_, minute_
             print('from_to_sign', from_to_sign)
             if from_to_sign == 1:
                 print('from_to', from_to)
@@ -164,17 +165,17 @@ def Information(num, detail, APDU):
                     LargeOAD = datatype + str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '01000000'
                 else:
                     LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
-                    print('data_list', data_list)
+                    # print('data_list', data_list)
                     LargeOAD = datatype + LargeOAD + Comm.list_append(data_list) + '0000'
 
             else:
                 LargeOAD = str(returnvalue) + '0200' + hex(relen)[2:].zfill(2) + LargeOAD + '0101'
-                print('data_list', data_list)
+                # print('data_list', data_list)
                 LargeOAD = datatype + LargeOAD + Comm.list_append(data_list) + '0000'
 
             ReturnMessage().head()
-            print('data_list', Comm.list_append(data_list))
-            print('组成', LargeOAD)
+            # print('data_list', Comm.list_append(data_list))
+            # print('组成', LargeOAD)
 
 
 
@@ -249,7 +250,7 @@ def SequenceOfLen(remain):
 
 def A_ResultRecord_SEQUENCE(remain):
     OAD = str(remain[0] + remain[1])
-    if OAD == '5004' or OAD == '5002':
+    if OAD == '5004' or OAD == '5002'or OAD == '5006':
         print('冻结')
         return OAD
     if OAD[0] == '3':
@@ -370,7 +371,7 @@ def OAD_SEQUENCE(OI, unsigned1, unsigned2):
         unsigned11 = Comm.dec2bin(int(unsigned1)).zfill(8)  # 特征值
         unsigned11 = int(unsigned11[0:4], 10)
         unsigned1 = '属性 ' + unsigned1[1]
-        print(OI, unsigned1)
+        print('OI, unsigned1',OI, unsigned1)
         value = str(OI).zfill(4) + unsigned1[-1].zfill(2) + str(unsigned2).zfill(2)
         ReturnMessage().sequence_of_len()
         global frozenSign
@@ -485,7 +486,7 @@ def Data(DataDescribe, args):
             year = int(args[0] + args[1], 16)
             mouth = int(args[2], 16)
             day = int(args[3], 16)
-            global hour,hour_, minute,minute_
+            global hour, hour_, minute, minute_
             hour = int(args[4], 16)
             hour_ = hour
             minute = int(args[5], 16)
@@ -546,6 +547,7 @@ def Data(DataDescribe, args):
             print('ERROR on Data')
     except:
         traceback.print_exc(file=open('bug.txt', 'a+'))
+
 
 def SASign(num):
     global SA_num
@@ -670,7 +672,7 @@ class ReturnMessage():
             self.get = self.get.split(' ')
             text = [OI, self.get[0], self.get[1]]
         except:
-            print('未知数据标识{}'.format(OI))
+            print('未知数据标识compose_data {}'.format(OI))
             traceback.print_exc(file=open('bug.txt', 'a+'))
 
         if OI == '40010200' or OI == '40020200' or OI == '202a0200':
@@ -703,16 +705,16 @@ class ReturnMessage():
             if text[0] == '00100200' and auto_increase == 1:
                 global start_time
                 stop_time = int(time.time() - start_time)
-                OI_B = str(int(text[2][16:24],16) + stop_time + 4).zfill(8)
-                OI_C = str(int(text[2][26:34],16) + stop_time + 3).zfill(8)
-                OI_D = str(int(text[2][36:44],16) + stop_time + 2).zfill(8)
-                OI_E = str(int(text[2][46:54],16) + stop_time + 1).zfill(8)
-                OI_A = str(int(text[2][6:14],16) + stop_time * 2 + 10).zfill(8)
+                OI_B = str(int(text[2][16:24], 16) + stop_time + 4).zfill(8)
+                OI_C = str(int(text[2][26:34], 16) + stop_time + 3).zfill(8)
+                OI_D = str(int(text[2][36:44], 16) + stop_time + 2).zfill(8)
+                OI_E = str(int(text[2][46:54], 16) + stop_time + 1).zfill(8)
+                OI_A = str(int(text[2][6:14], 16) + stop_time * 2 + 10).zfill(8)
                 print('start time:', start_time, 'stop time:', stop_time)
                 print('正向有功递增数值', OI_A)
                 text[2] = '010506' + OI_A + '06' + OI_B + '06' + OI_C + '06' + OI_D + '06' + OI_E
             self.message = text[0] + '01' + text[2]
-            print('message', self.message,'text[2]', text[2])
+            print('message', self.message, 'text[2]', text[2])
             LargeOAD = LargeOAD + self.message
         else:
             print('compose_data ERROR')
@@ -744,13 +746,14 @@ class ReturnMessage():
 
     def composefrozen(self, OI):
         global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele, SA_num_len
+        print("composefrozen OI",OI,"frozenSign",frozenSign)
         if frozenSign == 1 and OI[0] != '5':
             newOI = '50020200_' + OI
         if frozenSign == 2 and OI[0] != '5':
             newOI = '50040200_' + OI
         if frozenSign == 3 and OI[0] != '5':
             newOI = '50060200_' + OI
-
+        # print('new OI',newOI)
         if auto_day_frozon_sign == 1 and newOI == '50040200_20210200' and sele != 9:
             print('自动日冻结时标')
             global Daily_freeze  # 冻结时间
@@ -778,7 +781,7 @@ class ReturnMessage():
                 if OI == '202a0200':
                     pass
                 else:
-                    print('未知数据标识{}'.format(OI))
+                    print('未知数据标识 composefrozen  {}'.format(newOI))
             if newOI == '50020200_202a0200' or newOI == '50040200_202a0200':
                 text = [newOI, '目标服务器地址', '5507' + Comm.list2str(SA_num_len)]
             self.save(text)
@@ -869,8 +872,8 @@ OI = []
 start_time = time.time()
 auto_day_frozon_sign = 1
 auto_curve_sign = 1
-auto_increase_500400100200 = 1
-auto_increase = 1
+auto_increase_500400100200 = 0
+auto_increase = 0
 mac = 1
 GetRequestNormal_0501 = 0
 service_code = ''

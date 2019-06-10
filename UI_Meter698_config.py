@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UI_Meter698_config.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -24,13 +24,13 @@ class Ui_Dialog(object):
         self.tab.setContextMenuPolicy(QtCore.Qt.NoContextMenu)
         self.tab.setObjectName("tab")
         self.layoutWidget = QtWidgets.QWidget(self.tab)
-        self.layoutWidget.setGeometry(QtCore.QRect(10, 30, 169, 134))
+        self.layoutWidget.setGeometry(QtCore.QRect(10, 30, 170, 138))
         self.layoutWidget.setObjectName("layoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.layoutWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.checkBox_3 = QtWidgets.QCheckBox(self.layoutWidget)
-        self.checkBox_3.setChecked(True)
+        self.checkBox_3.setChecked(False)
         self.checkBox_3.setObjectName("checkBox_3")
         self.verticalLayout.addWidget(self.checkBox_3)
         self.checkBox_2 = QtWidgets.QCheckBox(self.layoutWidget)
@@ -58,7 +58,8 @@ class Ui_Dialog(object):
         self.checkBox_4.setToolTip("")
         self.checkBox_4.setWhatsThis("")
         self.checkBox_4.setLayoutDirection(QtCore.Qt.LeftToRight)
-        self.checkBox_4.setChecked(True)
+        self.checkBox_4.setCheckable(False)
+        self.checkBox_4.setChecked(False)
         self.checkBox_4.setAutoRepeat(False)
         self.checkBox_4.setTristate(False)
         self.checkBox_4.setObjectName("checkBox_4")
@@ -151,7 +152,7 @@ class Ui_Dialog(object):
         self.tableWidget.horizontalHeader().setMinimumSectionSize(110)
         self.tableWidget.verticalHeader().setVisible(False)
         self.layoutWidget2 = QtWidgets.QWidget(self.tab_2)
-        self.layoutWidget2.setGeometry(QtCore.QRect(0, 270, 111, 31))
+        self.layoutWidget2.setGeometry(QtCore.QRect(0, 270, 239, 31))
         self.layoutWidget2.setObjectName("layoutWidget2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.layoutWidget2)
         self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)

@@ -99,7 +99,6 @@ def Analysis(code):
         return s
     else:
         print('非698,尝试645')
-        # s = '68 01 00 00 00 00 00 68 93 06 34 33 33 33 33 33 9D 16'
         text = Meter645_core.deal_receive(code)
         if text == 0:
             return 1

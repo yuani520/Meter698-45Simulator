@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = UI_Meter698.Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('模拟表程序V1.22')
+        self.setWindowTitle('模拟表程序V1.23')
         self.addItem = self.GetSerialNumber()
         while 1:
             if self.addItem == None:
@@ -228,7 +228,7 @@ class Connect(threading.Thread):
                                         times = Meter698_core.re_max()
                                         sent = self.Meter.Analysis(data.replace(' ', ''))
                                         self._Sent(sent)
-                                    elif wild == 1:
+                                    elif wild == 1:#645
                                         sent = self.Meter.Analysis(data.replace(' ', ''))
                                         self._Sent(sent)
                                         continue

@@ -1,8 +1,9 @@
-import Comm, time, traceback, configparser, random
+import Comm, time, traceback, configparser, random, Meter645_core
 
 
 def check(code):
     if len(code) < 20 or len(code) > 200:
+        print('不符合698长度')
         return 1
     lenth = int(code[2] + code[1], 16)  # 长度
     if len(code) >= lenth + 2:
@@ -10,6 +11,7 @@ def check(code):
             print('check granted')
             return 0
         else:
+            print('check denied')
             return 1
     else:
         print('check denied')
@@ -36,9 +38,10 @@ def B_W_add(stat, add):
     print('B_W_add:', black_white_SA_address)
 
 
-def Wild_match_Analysis(code):  # NEW
+def Wild_match_Analysis(code):
     code = Comm.makelist(code)
     re = check(code)
+    print('Wild_match_Analysis: ', re)
     if re == 0:
         lenth = SASign(Comm.dec2bin(int(code[4], 16)).zfill(8))
         wild_a_full = 'aa' * lenth
@@ -49,7 +52,7 @@ def Wild_match_Analysis(code):  # NEW
         else:
             return 1
     else:
-        return 2
+        return 1
 
 
 def Analysis(code):
@@ -95,7 +98,13 @@ def Analysis(code):
         frozenSign = 0
         return s
     else:
-        return 1
+        print('非698,尝试645')
+        # s = '68 01 00 00 00 00 00 68 93 06 34 33 33 33 33 33 9D 16'
+        text = Meter645_core.deal_receive(code)
+        if text == 0:
+            return 1
+
+        return text
 
 
 def Information(num, detail, APDU):
@@ -250,7 +259,7 @@ def SequenceOfLen(remain):
 
 def A_ResultRecord_SEQUENCE(remain):
     OAD = str(remain[0] + remain[1])
-    if OAD == '5004' or OAD == '5002'or OAD == '5006':
+    if OAD == '5004' or OAD == '5002' or OAD == '5006':
         print('冻结')
         return OAD
     if OAD[0] == '3':
@@ -371,7 +380,7 @@ def OAD_SEQUENCE(OI, unsigned1, unsigned2):
         unsigned11 = Comm.dec2bin(int(unsigned1)).zfill(8)  # 特征值
         unsigned11 = int(unsigned11[0:4], 10)
         unsigned1 = '属性 ' + unsigned1[1]
-        print('OI, unsigned1',OI, unsigned1)
+        print('OI, unsigned1', OI, unsigned1)
         value = str(OI).zfill(4) + unsigned1[-1].zfill(2) + str(unsigned2).zfill(2)
         ReturnMessage().sequence_of_len()
         global frozenSign
@@ -678,7 +687,8 @@ class ReturnMessage():
         if OI == '40010200' or OI == '40020200' or OI == '202a0200':
             st = ['202a0200/40010200/40020200', '目标服务器地址/通信地址/表号', '']
             self.save(st)
-            trans = str(int(text[2][6:-1]) + random.randint(0, _max)).zfill(12)
+            # trans = str(int(text[2][6:-1]) + random.randint(0, _max)).zfill(12)
+            trans = str(int(text[2][6::])).zfill(12)
             print('compose_data_trans', trans)
             self.message = '40010200' + '01' + '550705' + trans
             print('message', self.message)
@@ -746,7 +756,7 @@ class ReturnMessage():
 
     def composefrozen(self, OI):
         global frozenSign, auto_day_frozon_sign, auto_curve_sign, sele, SA_num_len
-        print("composefrozen OI",OI,"frozenSign",frozenSign)
+        print("composefrozen OI", OI, "frozenSign", frozenSign)
         if frozenSign == 1 and OI[0] != '5':
             newOI = '50020200_' + OI
         if frozenSign == 2 and OI[0] != '5':

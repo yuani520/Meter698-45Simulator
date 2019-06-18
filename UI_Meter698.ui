@@ -34,7 +34,7 @@
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>550</x>
+         <x>510</x>
       <y>20</y>
       <width>71</width>
       <height>23</height>
@@ -47,7 +47,7 @@
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>-20</x>
+         <x>0</x>
       <y>20</y>
       <width>491</width>
       <height>24</height>
@@ -185,7 +185,7 @@
    <widget class="QPushButton" name="pushButton_2">
     <property name="geometry">
      <rect>
-      <x>630</x>
+         <x>600</x>
       <y>20</y>
       <width>71</width>
       <height>23</height>
@@ -198,7 +198,7 @@
    <widget class="QToolButton" name="toolButton">
     <property name="geometry">
      <rect>
-      <x>710</x>
+         <x>690</x>
       <y>20</y>
       <width>31</width>
       <height>23</height>

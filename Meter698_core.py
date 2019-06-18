@@ -127,9 +127,17 @@ def Information(num, detail, APDU):
             print(detail, '读取一个对象属性请求(GetRequestNormal) ')
             global LargeOAD, GetRequestNormal_0501
             GetRequestNormal_0501 = 1
-            A_ResultRecord_SEQUENCE(APDU[1:5])
-            LargeOAD = LargeOAD + '0000'
-            ReturnMessage().reAPDUtype(num + detail + service_code)
+            returnvalue = A_ResultRecord_SEQUENCE(APDU[1:5])
+            if returnvalue == 0:
+                print('0501抄事件')
+                LargeOAD = '850100' + Comm.list2str(APDU[1:5]) + '01000000'
+                print('0501抄事件', LargeOAD)
+                st = [Comm.list2str(APDU[1:5]), '事件', '']
+                global OI
+                OI = OI + st[0:2]
+            else:
+                LargeOAD = LargeOAD + '0000'
+                ReturnMessage().reAPDUtype(num + detail + service_code)
             ReturnMessage().head()
             GetRequestNormal_0501 = 0
 
@@ -146,7 +154,7 @@ def Information(num, detail, APDU):
             returnvalue = A_ResultRecord_SEQUENCE(APDU[1:5])
             global frozenSign, data_list
             if returnvalue == 0:
-                print('抄时间')
+                print('抄事件')
                 Event(APDU[1:])
                 return 0
             if returnvalue == '5002':
@@ -622,13 +630,15 @@ class ReturnMessage():
         print('SecType', SecType)
         if SecType == '01':
             sec_len = len(LargeOAD) // 2
+            print('sec_len1:', sec_len)
             if sec_len > 127:
                 if sec_len < 255:
                     sec_len = '81' + hex(len(LargeOAD) // 2)[2:]
                 elif sec_len > 255 and sec_len < 65535:
                     sec_len = '82' + hex(len(LargeOAD) // 2)[2:].zfill(4)
             else:
-                sec_len = hex(len(LargeOAD) // 2)[2:]
+                sec_len = hex(len(LargeOAD) // 2)[2:].zfill(2)
+            print('sec_len2:', sec_len)
             LargeOAD = '9000' + sec_len + LargeOAD + '0100040a0b0c0d'
             SecType == '00'
             print('完整的APDU加MAC ', LargeOAD)

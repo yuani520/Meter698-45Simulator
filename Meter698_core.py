@@ -11,10 +11,10 @@ def check(code):
             print('check granted')
             return 0
         else:
-            print('check denied')
+            print('lenth check denied')
             return 1
     else:
-        print('check denied')
+        print('698 check denied')
         return 1
 
 
@@ -129,11 +129,13 @@ def Information(num, detail, APDU):
             GetRequestNormal_0501 = 1
             returnvalue = A_ResultRecord_SEQUENCE(APDU[1:5])
             if returnvalue == 0:
-                print('0501抄事件')
-                LargeOAD = '850100' + Comm.list2str(APDU[1:5]) + '01000000'
+                print('0501抄事件')  # 3320
+                LargeOAD = '850100' + Comm.list2str(
+                    APDU[1:5]) + '01 01 04 51 30 1b 02 00 51 30 2a 02 00 51 30 13 02 00 51 30 11 02 00 00 00'.replace(
+                    ' ', '')
                 print('0501抄事件', LargeOAD)
-                st = [Comm.list2str(APDU[1:5]), '事件', '']
-                global OI
+                st = [Comm.list2str(APDU[1:5]), '事件特殊处理', '']
+                global OI  # 屏幕显示
                 OI = OI + st[0:2]
             else:
                 LargeOAD = LargeOAD + '0000'
@@ -384,17 +386,17 @@ def ROAD(args):
 
 def OAD_SEQUENCE(OI, unsigned1, unsigned2):
     try:
-        unsigned11 = Comm.dec2bin(int(unsigned1)).zfill(8)  # 特征值
-        unsigned11 = int(unsigned11[0:4], 10)
+        # unsigned11 = Comm.dec2bin(int(unsigned1)).zfill(8)  # 特征值
+        # unsigned11 = int(unsigned11[0:4], 10)
         unsigned1 = '属性 ' + unsigned1[1]
         print('OI, unsigned1', OI, unsigned1)
         value = str(OI).zfill(4) + unsigned1[-1].zfill(2) + str(unsigned2).zfill(2)
         ReturnMessage().sequence_of_len()
         global frozenSign
         if frozenSign != 0:
-            ReturnMessage().composefrozen(value)
+            ReturnMessage().composefrozen(value.lower())
         else:
-            ReturnMessage().compose_data(value)
+            ReturnMessage().compose_data(value.lower())
     except:
         traceback.print_exc(file=open('bug.txt', 'a+'))
 

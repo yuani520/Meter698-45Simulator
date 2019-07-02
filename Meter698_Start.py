@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = UI_Meter698.Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('模拟表程序V1.31')
+        self.setWindowTitle('模拟表程序 V1.32')
         self.addItem = self.GetSerialNumber()
         while 1:
             if self.addItem == None:
@@ -282,7 +282,7 @@ class Connect(threading.Thread):
             self.Meter.ReturnMessage()
             content = self.Meter.ReturnMessage().transport()
             # print('content:', content)
-            message = '数据标识:' + get_list_sum(content)
+            message = '数据标识:' + get_list_sum(content)  # 显示
             sent = '发送:\n' + makestr(sent)
             MainWindow._signal_text.emit(message)
             MainWindow._signal_text.emit(sent)

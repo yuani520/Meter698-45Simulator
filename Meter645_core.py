@@ -78,7 +78,7 @@ def readdata(OI):
         else:
             if text1[0] == OI:
                 text = text.split(' ')
-                data = text[-1][0:-1]
+                data = (text[-1][0:-1]).replace(',', '')
                 name = text[-2]
                 if data[0] == '@':
                     data_time = Electricity_meter_date_and_week_and_time(data)
@@ -158,13 +158,14 @@ def deal_receive(message):
     a = readdata(OI)
     if not a:
         print('OI 无法解析: ',OI)
-        return 0
+        returnstr = ''
+        reconctrlcode = 'D100'
+        L = ''
+        D = ''
+        text = returnframe(Comm.list2str(address), reconctrlcode, L, D, returnstr)
     else:
         returnstr = plus33(a[0])  # Date!!!!
         L = hex(4 + len(Comm.makelist(returnstr)))[2:].zfill(2)
         text = returnframe(Comm.list2str(address), reconctrlcode, L, D, returnstr)
         print('Sending:', text)
-        # t.write(binascii.a2b_hex(text))
-        return text
-
-
+    return text

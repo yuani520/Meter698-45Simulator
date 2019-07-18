@@ -221,6 +221,15 @@ class Ui_Dialog(object):
         self.label_3 = QtWidgets.QLabel(self.groupBox_3)
         self.label_3.setGeometry(QtCore.QRect(20, 60, 131, 16))
         self.label_3.setObjectName("label_3")
+        self.groupBox_5 = QtWidgets.QGroupBox(self.tab_3)
+        self.groupBox_5.setGeometry(QtCore.QRect(210, 20, 371, 161))
+        self.groupBox_5.setObjectName("groupBox_5")
+        self.textEdit_3 = QtWidgets.QTextEdit(self.groupBox_5)
+        self.textEdit_3.setGeometry(QtCore.QRect(20, 30, 331, 111))
+        self.textEdit_3.setAutoFillBackground(True)
+        self.textEdit_3.setReadOnly(True)
+        self.textEdit_3.setAcceptRichText(False)
+        self.textEdit_3.setObjectName("textEdit_3")
         self.tabWidget.addTab(self.tab_3, "")
         self.layoutWidget3 = QtWidgets.QWidget(Dialog)
         self.layoutWidget3.setGeometry(QtCore.QRect(480, 350, 158, 25))
@@ -264,7 +273,7 @@ class Ui_Dialog(object):
         self.pushButton_3.setText(_translate("Dialog", "+"))
         self.pushButton_4.setText(_translate("Dialog", "-"))
         self.pushButton_6.setText(_translate("Dialog", "刷新"))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "数据标识"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("Dialog", "698数据标识"))
         self.groupBox_4.setTitle(_translate("Dialog", "曲线漏点："))
         self.timeEdit.setDisplayFormat(_translate("Dialog", "HH:mm"))
         self.timeEdit_2.setDisplayFormat(_translate("Dialog", "HH:mm"))
@@ -276,7 +285,16 @@ class Ui_Dialog(object):
         self.pushButton_5.setText(_translate("Dialog", "txt格式"))
         self.groupBox_3.setTitle(_translate("Dialog", "About："))
         self.label_2.setText(_translate("Dialog", "Version：V1.3"))
-        self.label_3.setText(_translate("Dialog", "Frame：190315"))
+        self.label_3.setText(_translate("Dialog", "Frame：190718"))
+        self.groupBox_5.setTitle(_translate("Dialog", "645说明:"))
+        self.textEdit_3.setHtml(_translate("Dialog",
+                                           "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+                                           "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+                                           "p, li { white-space: pre-wrap; }\n"
+                                           "</style></head><body style=\" font-family:\'SimSun\'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
+                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">返回年月日周:@GetDateWeek@</p>\n"
+                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">返回当前时间:@GetTime@</p>\n"
+                                           "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">返回冻结时标(当前):@FreezeTime@</p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("Dialog", "其它"))
         self.pushButton.setText(_translate("Dialog", "Save"))
         self.pushButton_2.setText(_translate("Dialog", "Cancel"))

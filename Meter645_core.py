@@ -145,7 +145,8 @@ def deal_receive(message):
     while 1:
         if message[0] == '68':
             address = message[1:7]
-            if address[0] == 'aa' or address[0] == '99':
+            if address == ['aa', 'aa', 'aa', 'aa', 'aa', 'aa'] or address == ['99', '99', '99', '99', '99', '99']:
+                # if address[0] == 'aa' or address[0] == '99':
                 address = ['01', '00', '00' ,'00', '00', '00']
             break
         else:

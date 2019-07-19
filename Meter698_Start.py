@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         QMainWindow.__init__(self)
         self.ui = UI_Meter698.Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('模拟表程序 V1.33')
+        self.setWindowTitle('模拟表程序 V1.34')
         self.addItem = self.GetSerialNumber()
         while 1:
             if self.addItem == None:
@@ -155,6 +155,7 @@ class Connect(threading.Thread):
         self.config = Config()
         self.run_ = RuningTime()
 
+
     def switch(self):
         if self.__runflag.isSet():
             MainWindow.ui.pushButton.setText('启动')
@@ -228,7 +229,7 @@ class Connect(threading.Thread):
                                         times = Meter698_core.re_max()
                                         sent = self.Meter.Analysis(data.replace(' ', ''))
                                         self._Sent(sent)
-                                    elif wild == 1:#645
+                                    elif wild == 1:  # add 645
                                         sent = self.Meter.Analysis(data.replace(' ', ''))
                                         self._Sent(sent)
                                         continue

@@ -100,10 +100,13 @@ def Analysis(code):
     else:
         print('非698,尝试645')
         text = Meter645_core.deal_receive(code)
-        if text == 0:
-            return 1
 
-        return text
+        if text[0] == 0:
+            print('645解析失败')
+            return 1
+        global OI
+        OI = text[1:]
+        return text[0]
 
 
 def Information(num, detail, APDU):

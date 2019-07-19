@@ -86,7 +86,7 @@ def readdata(OI):
                     return data_time, name
                 print('数据标识及时间:', name, datetime.datetime.now().strftime('%T'))
                 return data, name
-    f.close()
+    return None
 
 
 def plus33(message):
@@ -140,14 +140,14 @@ def returnframe(add, reconctrlcode, L, D, N):
 
 def deal_receive(message):
     if message[8] == "13":
-        text = "68 01 00 00 00 00 00 68 93 06 34 33 33 33 33 33 9D 16".replace(' ','')
-        return text
+        text = "68 01 00 00 00 00 00 68 93 06 34 33 33 33 33 33 9D 16".replace(' ', '')
+        return (text, '0', '0')
     while 1:
         if message[0] == '68':
             address = message[1:7]
             if address == ['aa', 'aa', 'aa', 'aa', 'aa', 'aa'] or address == ['99', '99', '99', '99', '99', '99']:
                 # if address[0] == 'aa' or address[0] == '99':
-                address = ['01', '00', '00' ,'00', '00', '00']
+                address = ['01', '00', '00', '00', '00', '00']
             break
         else:
             del message[0]
@@ -158,15 +158,16 @@ def deal_receive(message):
     OI = Comm.list2str(minus33(datasign))
     a = readdata(OI)
     if not a:
-        print('OI 无法解析: ',OI)
+        print('OI 无法解析: ', OI)
         returnstr = ''
         reconctrlcode = 'D100'
         L = ''
         D = ''
         text = returnframe(Comm.list2str(address), reconctrlcode, L, D, returnstr)
+        return (text, '0', '0')
     else:
         returnstr = plus33(a[0])  # Date!!!!
         L = hex(4 + len(Comm.makelist(returnstr)))[2:].zfill(2)
         text = returnframe(Comm.list2str(address), reconctrlcode, L, D, returnstr)
         print('Sending:', text)
-    return text
+    return (text, a[1], a[0])

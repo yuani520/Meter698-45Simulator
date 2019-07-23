@@ -155,7 +155,7 @@ def deal_receive(message):
     datasign = message[10:14]
     D = Comm.list2str(datasign)
     cs = CS(strto0x(message[0:-2]), message[-2])
-    OI = Comm.list2str(minus33(datasign))
+    OI = Comm.list2str(minus33(datasign)).upper()
     a = readdata(OI)
     if not a:
         print('OI 无法解析: ', OI)
@@ -164,10 +164,15 @@ def deal_receive(message):
         L = ''
         D = ''
         text = returnframe(Comm.list2str(address), reconctrlcode, L, D, returnstr)
-        return (text, '0', '0')
+        return (text, '无法解析:', OI)
     else:
-        returnstr = plus33(a[0])  # Date!!!!
+        if re.match("0610", OI):
+            TIME = Comm.list2str(message[15:19])
+            times = int(message[14]) - 33
+            returnstr = TIME + plus33(a[0]) * times
+        else:
+            returnstr = plus33(a[0])  # Date!!!!
         L = hex(4 + len(Comm.makelist(returnstr)))[2:].zfill(2)
         text = returnframe(Comm.list2str(address), reconctrlcode, L, D, returnstr)
         print('Sending:', text)
-    return (text, a[1], a[0])
+    return (text, OI + " " + a[1], a[0])

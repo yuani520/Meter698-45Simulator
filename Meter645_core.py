@@ -167,7 +167,7 @@ def deal_receive(message):
         return (text, '无法解析:', OI)
     else:
         if re.match("0610", OI):
-            TIME = Comm.list2str(message[15:19])
+            TIME = Comm.list2str(message[15:20])
             times = int(message[14]) - 33
             returnstr = TIME + plus33(a[0]) * times
         else:
